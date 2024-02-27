@@ -2,11 +2,10 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/loginLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
-    tools:context=".Login">
+    tools:context=".SignIn">
 
     <View
         android:id="@+id/viwBar"
@@ -17,11 +16,22 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/txtLogin"
+    <ImageButton
+        android:id="@+id/imgBack"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/txtLogin"
+        android:layout_margin="10sp"
+        android:backgroundTint="@color/cian_app"
+        app:layout_constraintBottom_toBottomOf="@+id/viwBar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/viwBar"
+        app:srcCompat="?attr/homeAsUpIndicator" />
+
+    <TextView
+        android:id="@+id/txtSignIn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/txtSignIn"
         android:textColor="@color/white"
         android:textSize="25sp"
         app:layout_constraintBottom_toBottomOf="@+id/viwBar"
@@ -46,62 +56,39 @@
         android:id="@+id/edtPassword"
         android:layout_width="300sp"
         android:layout_height="wrap_content"
+        android:autofillHints=""
         android:hint="@string/txtPassword"
         android:inputType="text"
-        app:layout_constraintBottom_toTopOf="@+id/btnLogin"
+        app:layout_constraintBottom_toTopOf="@+id/edtRPassword"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/edtEmail"
+        tools:ignore="TextFields" />
+
+    <EditText
+        android:id="@+id/edtRPassword"
+        android:layout_width="300sp"
+        android:layout_height="wrap_content"
+        android:hint="@string/txtRPassword"
+        android:inputType="text"
+        app:layout_constraintBottom_toTopOf="@+id/btnSignIn"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/edtPassword"
         android:autofillHints=""
         tools:ignore="TextFields" />
 
     <Button
-        android:id="@+id/btnLogin"
+        android:id="@+id/btnSignIn"
         android:layout_width="300sp"
         android:layout_height="70sp"
         android:backgroundTint="@color/purple_app"
-        android:text="@string/txtLogin"
+        android:text="@string/txtSignIn"
         android:textColor="@color/white"
         android:textSize="18sp"
-        app:layout_constraintBottom_toTopOf="@+id/txtLogin1"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/edtPassword" />
-
-    <TextView
-        android:id="@+id/txtLogin1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/txtLogin1"
-        android:textColor="@color/black"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/txtLogin2"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnLogin" />
-
-    <TextView
-        android:id="@+id/txtLogin2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/txtLogin2"
-        android:textColor="@color/link"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/txtLogin3"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtLogin1" />
-
-    <TextView
-        android:id="@+id/txtLogin3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/txtLogin3"
-        android:textColor="@color/link"
-        android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtLogin2" />
+        app:layout_constraintTop_toBottomOf="@+id/edtPassword" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
