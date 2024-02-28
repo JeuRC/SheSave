@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">SheSave</string>
+    <string name="txtLogin">Login</string>
+    <string name="txtEmail">Email</string>
+    <string name="txtPassword">Password</string>
+    <string name="txtRPassword">Repeat Password</string>
+    <string name="txtLogin1">You do not have an account?</string>
+    <string name="txtLogin2">Sign In</string>
+    <string name="txtLogin3">Forgot your Password?</string>
+    <string name="txtSignIn">Sign In</string>
+</resources>
