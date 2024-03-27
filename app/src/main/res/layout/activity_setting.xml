@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background"
+    tools:context=".Setting">
+
+    <View
+        android:id="@+id/viwBar"
+        android:layout_width="wrap_content"
+        android:layout_height="70sp"
+        android:background="@color/cian_app"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageButton
+        android:id="@+id/imgBack"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="10sp"
+        android:backgroundTint="@color/cian_app"
+        app:layout_constraintBottom_toBottomOf="@+id/viwBar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/viwBar"
+        app:srcCompat="?attr/homeAsUpIndicator"
+        tools:ignore="ContentDescription" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/txtSetting"
+        android:textColor="@color/white"
+        android:textSize="25sp"
+        app:layout_constraintBottom_toBottomOf="@+id/viwBar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/imgLogo"
+        android:layout_width="170sp"
+        android:layout_height="170sp"
+        android:layout_marginTop="30sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/viwBar"
+        app:srcCompat="@drawable/icon_logo"
+        tools:ignore="ContentDescription" />
+
+    <ImageButton
+        android:id="@+id/imgLogout"
+        android:layout_width="70sp"
+        android:layout_height="70sp"
+        android:layout_marginTop="15sp"
+        android:layout_marginEnd="15sp"
+        android:adjustViewBounds="true"
+        android:background="@drawable/circle_button"
+        android:backgroundTint="@color/cian_app"
+        android:scaleType="fitCenter"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/viwBar"
+        app:srcCompat="@drawable/logo_logout"
+        tools:ignore="ContentDescription" />
+
+    <TextView
+        android:id="@+id/txtEmail"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="40sp"
+        android:layout_marginTop="120sp"
+        android:text="@string/txtEmail"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imgLogo" />
+
+    <TextView
+        android:id="@+id/txtPassword"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="40sp"
+        android:text="@string/txtPassword"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtEmail" />
+
+    <TextView
+        android:id="@+id/txtEmail_address"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="120sp"
+        android:layout_marginEnd="40sp"
+        android:text="@string/txtEmail_address"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imgLogo" />
+
+    <ImageButton
+        android:id="@+id/imgEdit_email"
+        android:layout_width="45sp"
+        android:layout_height="45sp"
+        android:adjustViewBounds="true"
+        android:backgroundTint="@color/cian_app"
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toBottomOf="@+id/txtEmail_address"
+        app:layout_constraintStart_toEndOf="@+id/txtEmail_address"
+        app:layout_constraintTop_toTopOf="@+id/txtEmail_address"
+        app:srcCompat="@drawable/icon_edit"
+        tools:ignore="ContentDescription" />
+
+    <TextView
+        android:id="@+id/txtCharacters"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="40sp"
+        android:text="@string/txtPasswordHidden"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtEmail_address" />
+
+    <ImageButton
+        android:id="@+id/imgEdit_characters"
+        android:layout_width="45sp"
+        android:layout_height="45sp"
+        android:adjustViewBounds="true"
+        android:backgroundTint="@color/cian_app"
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toBottomOf="@+id/txtCharacters"
+        app:layout_constraintStart_toEndOf="@+id/txtCharacters"
+        app:layout_constraintTop_toTopOf="@+id/txtCharacters"
+        app:srcCompat="@drawable/icon_edit"
+        tools:ignore="ContentDescription" />
+
+    <ImageButton
+        android:id="@+id/imgRecording"
+        android:layout_width="100sp"
+        android:layout_height="100sp"
+        android:layout_marginStart="25sp"
+        android:layout_marginBottom="25sp"
+        android:adjustViewBounds="true"
+        android:background="@drawable/rounded_button"
+        android:backgroundTint="@color/purple_app"
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:srcCompat="@drawable/icon_recording"
+        tools:ignore="ContentDescription" />
+
+    <ImageButton
+        android:id="@+id/imgEmergency_contacts"
+        android:layout_width="100sp"
+        android:layout_height="100sp"
+        android:layout_marginEnd="25sp"
+        android:layout_marginBottom="25sp"
+        android:adjustViewBounds="true"
+        android:background="@drawable/rounded_button"
+        android:backgroundTint="@color/purple_app"
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@drawable/logo_emergency_contact"
+        tools:ignore="ContentDescription" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

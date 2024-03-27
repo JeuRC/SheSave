@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
-    tools:context=".Login">
+    android:backgroundTint="@color/white"
+    tools:context=".AddContact">
 
     <View
         android:id="@+id/viwBar"
@@ -16,11 +16,23 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/txtLogin"
+    <ImageButton
+        android:id="@+id/imgBack"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/txtLogin"
+        android:layout_margin="10sp"
+        android:backgroundTint="@color/cian_app"
+        app:layout_constraintBottom_toBottomOf="@+id/viwBar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/viwBar"
+        app:srcCompat="?attr/homeAsUpIndicator"
+        tools:ignore="ContentDescription" />
+
+    <TextView
+        android:id="@+id/txtSetting"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/txtContacts"
         android:textColor="@color/white"
         android:textSize="25sp"
         app:layout_constraintBottom_toBottomOf="@+id/viwBar"
@@ -32,22 +44,37 @@
         android:id="@+id/imgLogo"
         android:layout_width="200sp"
         android:layout_height="200sp"
-        app:layout_constraintBottom_toTopOf="@+id/edtEmail"
+        app:layout_constraintBottom_toTopOf="@id/edtName"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/viwBar"
-        app:srcCompat="@drawable/icon_logo" />
+        app:srcCompat="@drawable/icon_logo"
+        tools:ignore="ContentDescription" />
+
+    <ImageButton
+        android:id="@+id/imgContacts"
+        android:layout_width="70sp"
+        android:layout_height="70sp"
+        android:layout_marginTop="15sp"
+        android:layout_marginEnd="15sp"
+        android:adjustViewBounds="true"
+        android:background="@drawable/rounded_button"
+        android:backgroundTint="@color/purple_app"
+        android:scaleType="fitCenter"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/viwBar"
+        app:srcCompat="@drawable/logo_contacts"
+        tools:ignore="ContentDescription" />
 
     <EditText
-        android:id="@+id/edtEmail"
+        android:id="@+id/edtName"
         android:layout_width="300sp"
         android:layout_height="wrap_content"
         android:autofillHints=""
         android:backgroundTint="@color/md_grey_700"
-        android:textColorHint="@color/md_grey_700"
+        android:hint="@string/txtName"
         android:textColor="@color/md_grey_700"
-        android:hint="@string/txtEmail"
-        android:inputType="textEmailAddress"
+        android:textColorHint="@color/md_grey_700"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -55,68 +82,32 @@
         tools:ignore="TextFields" />
 
     <EditText
-        android:id="@+id/edtPassword"
+        android:id="@+id/edtNumber"
         android:layout_width="300sp"
         android:layout_height="wrap_content"
+        android:autofillHints=""
         android:backgroundTint="@color/md_grey_700"
-        android:textColorHint="@color/md_grey_700"
+        android:hint="@string/txtNumber"
+        android:inputType="phone"
         android:textColor="@color/md_grey_700"
-        android:hint="@string/txtPassword"
-        android:inputType="textPassword"
-        app:layout_constraintBottom_toTopOf="@+id/btnLogin"
+        android:textColorHint="@color/md_grey_700"
+        app:layout_constraintBottom_toTopOf="@+id/btnSave"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/edtEmail"
-        android:autofillHints=""
+        app:layout_constraintTop_toBottomOf="@+id/edtName"
         tools:ignore="TextFields" />
 
     <Button
-        android:id="@+id/btnLogin"
+        android:id="@+id/btnSave"
         android:layout_width="300sp"
         android:layout_height="70sp"
         android:backgroundTint="@color/purple_app"
-        android:text="@string/txtLogin"
+        android:text="@string/txtSave"
         android:textColor="@color/white"
         android:textSize="18sp"
-        app:layout_constraintBottom_toTopOf="@+id/txtLogin1"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/edtPassword" />
-
-    <TextView
-        android:id="@+id/txtLogin1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/txtLogin1"
-        android:textColor="@color/black"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/txtLogin2"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnLogin" />
-
-    <TextView
-        android:id="@+id/txtLogin2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/txtLogin2"
-        android:textColor="@color/link"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/txtLogin3"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtLogin1" />
-
-    <TextView
-        android:id="@+id/txtLogin3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/txtLogin3"
-        android:textColor="@color/link"
-        android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtLogin2" />
+        app:layout_constraintTop_toBottomOf="@+id/edtNumber" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
