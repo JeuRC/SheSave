@@ -6,4 +6,69 @@
     android:layout_height="match_parent"
     tools:context=".Home">
 
+    <fragment
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintBottom_toTopOf="@+id/viwOptions"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/viwBar" />
+
+    <View
+        android:id="@+id/viwBar"
+        android:layout_width="wrap_content"
+        android:layout_height="70sp"
+        android:background="@color/cian_app"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/txtLogin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/txtLogin"
+        android:textColor="@color/white"
+        android:textSize="25sp"
+        app:layout_constraintBottom_toBottomOf="@+id/viwBar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <View
+        android:id="@+id/viwOptions"
+        android:layout_width="wrap_content"
+        android:layout_height="120sp"
+        android:background="@color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <ImageButton
+        android:id="@+id/imgContact"
+        android:layout_width="70sp"
+        android:layout_height="70sp"
+        android:adjustViewBounds="true"
+        android:scaleType="fitCenter"
+        android:src="@android:drawable/btn_star"
+        app:layout_constraintBottom_toBottomOf="@+id/viwOptions"
+        app:layout_constraintStart_toStartOf="@+id/viwOptions"
+        app:layout_constraintTop_toTopOf="@+id/viwOptions"
+        tools:ignore="SpeakableTextPresentCheck" />
+
+    <ImageButton
+        android:id="@+id/imgMulti"
+        android:layout_width="70sp"
+        android:layout_height="70sp"
+        android:adjustViewBounds="true"
+        android:scaleType="center"
+        android:src="@android:drawable/btn_star"
+        app:layout_constraintBottom_toBottomOf="@+id/viwOptions"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/viwOptions"
+        tools:ignore="SpeakableTextPresentCheck" />
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>
