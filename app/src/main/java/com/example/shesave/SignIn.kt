@@ -30,13 +30,14 @@ class SignIn : AppCompatActivity() {
 
         btnSignIn.setOnClickListener {
             if (edtEmail.text.toString().isNotEmpty() && edtPassword.text.toString().isNotEmpty() &&
-                    edtRPassword.text.toString().isNotEmpty()){
-                if (edtPassword.text.toString() == edtRPassword.text.toString()){
+                edtRPassword.text.toString().isNotEmpty()
+            ) {
+                if (edtPassword.text.toString() == edtRPassword.text.toString()) {
                     save(edtEmail.text.toString(), edtPassword.text.toString())
-                }else{
+                } else {
                     Toast.makeText(this, "Password must match", Toast.LENGTH_LONG).show()
                 }
-            }else{
+            } else {
                 Toast.makeText(this, "You must fill out all the fields", Toast.LENGTH_LONG).show()
             }
         }
