@@ -22,9 +22,9 @@ class Login : AppCompatActivity() {
         val txtLogin2 = findViewById<TextView>(R.id.txtLogin2)
 
         btnLogin.setOnClickListener {
-            if (edtEmail.text.toString().isNotEmpty() && edtPassword.text.toString().isNotEmpty()){
+            if (edtEmail.text.toString().isNotEmpty() && edtPassword.text.toString().isNotEmpty()) {
                 session()
-            }else{
+            } else {
                 Toast.makeText(this, "You must fill out all the fields", Toast.LENGTH_SHORT).show()
             }
         }
@@ -47,15 +47,13 @@ class Login : AppCompatActivity() {
         val edtEmail = findViewById<EditText>(R.id.edtEmail)
         val edtPassword = findViewById<EditText>(R.id.edtPassword)
 
-        if (email == edtEmail.text.toString() && password == edtPassword.text.toString()){
-            val intent = Intent(this, Home::class.java).apply {
-                putExtra("email", email)
-                putExtra("password", password)
-            }
+        if (email == edtEmail.text.toString() && password == edtPassword.text.toString()) {
+            val intent = Intent(this, Home::class.java)
             startActivity(intent)
             Toast.makeText(this, "You have successfully logged in", Toast.LENGTH_SHORT).show()
-        }else{
-            Toast.makeText(this, "The data entered has not been recorded", Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(this, "The data entered has not been recorded", Toast.LENGTH_SHORT)
+                .show()
         }
     }
 }
