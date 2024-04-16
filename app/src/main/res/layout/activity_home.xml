@@ -14,26 +14,25 @@
         app:layout_constraintBottom_toTopOf="@+id/viwOptions"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/viwBar" />
+        app:layout_constraintTop_toBottomOf="parent" />
 
     <View
         android:id="@+id/viwBar"
         android:layout_width="wrap_content"
         android:layout_height="70sp"
-        android:background="@color/cian_app"
+        android:background="@color/transparent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/txtLogin"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/txtLogin"
-        android:textColor="@color/white"
-        android:textSize="25sp"
+    <Button
+        android:id="@+id/btnSetting"
+        android:layout_width="70sp"
+        android:layout_height="70sp"
+        android:backgroundTint="@color/purple_app"
         app:layout_constraintBottom_toBottomOf="@+id/viwBar"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginStart="20sp"
+        android:layout_marginTop="20sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -46,29 +45,47 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
+    <Button
+        android:id="@+id/btnSos"
+        android:layout_width="130sp"
+        android:layout_height="130sp"
+        android:layout_marginBottom="80sp"
+        android:background="@drawable/sos_button"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/viwOptions"
+        tools:ignore="SpeakableTextPresentCheck" />
+
     <ImageButton
-        android:id="@+id/imgContact"
+        android:id="@+id/imgRecording"
         android:layout_width="70sp"
         android:layout_height="70sp"
+        android:layout_marginStart="30sp"
         android:adjustViewBounds="true"
+        android:background="@drawable/rounded_button"
+        android:backgroundTint="@color/purple_app"
         android:scaleType="fitCenter"
-        android:src="@android:drawable/btn_star"
+        android:src="@drawable/icon_recording"
         app:layout_constraintBottom_toBottomOf="@+id/viwOptions"
         app:layout_constraintStart_toStartOf="@+id/viwOptions"
         app:layout_constraintTop_toTopOf="@+id/viwOptions"
         tools:ignore="SpeakableTextPresentCheck" />
 
     <ImageButton
-        android:id="@+id/imgMulti"
+        android:id="@+id/imgContacts"
         android:layout_width="70sp"
         android:layout_height="70sp"
+        android:layout_marginEnd="30sp"
+        android:layout_marginBottom="25sp"
         android:adjustViewBounds="true"
-        android:scaleType="center"
-        android:src="@android:drawable/btn_star"
-        app:layout_constraintBottom_toBottomOf="@+id/viwOptions"
+        android:background="@drawable/rounded_button"
+        android:backgroundTint="@color/purple_app"
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/viwOptions"
-        tools:ignore="SpeakableTextPresentCheck" />
+        app:srcCompat="@drawable/logo_emergency_contact"
+        tools:ignore="ContentDescription,SpeakableTextPresentCheck" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

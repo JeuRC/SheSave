@@ -14,6 +14,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 class Login : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        supportActionBar?.hide()
         setContentView(R.layout.activity_login)
 
         val edtEmail = findViewById<EditText>(R.id.edtEmail)
@@ -25,7 +26,7 @@ class Login : AppCompatActivity() {
             if (edtEmail.text.toString().isNotEmpty() && edtPassword.text.toString().isNotEmpty()) {
                 session()
             } else {
-                Toast.makeText(this, "You must fill out all the fields", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Diligencia todos los campos", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -50,9 +51,9 @@ class Login : AppCompatActivity() {
         if (email == edtEmail.text.toString() && password == edtPassword.text.toString()) {
             val intent = Intent(this, Home::class.java)
             startActivity(intent)
-            Toast.makeText(this, "You have successfully logged in", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Has ingresado exitosamente", Toast.LENGTH_SHORT).show()
         } else {
-            Toast.makeText(this, "The data entered has not been recorded", Toast.LENGTH_SHORT)
+            Toast.makeText(this, "Los datos ingresados no estan registrados", Toast.LENGTH_SHORT)
                 .show()
         }
     }

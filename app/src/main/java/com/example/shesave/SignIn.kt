@@ -15,6 +15,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 class SignIn : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        supportActionBar?.hide()
         setContentView(R.layout.activity_sign_in)
 
         val imgBack = findViewById<ImageButton>(R.id.imgBack)
@@ -35,10 +36,10 @@ class SignIn : AppCompatActivity() {
                 if (edtPassword.text.toString() == edtRPassword.text.toString()) {
                     save(edtEmail.text.toString(), edtPassword.text.toString())
                 } else {
-                    Toast.makeText(this, "Password must match", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, "Las contraseñas no coinciden", Toast.LENGTH_LONG).show()
                 }
             } else {
-                Toast.makeText(this, "You must fill out all the fields", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, "Diligencia todos los campos", Toast.LENGTH_LONG).show()
             }
         }
     }
@@ -51,6 +52,6 @@ class SignIn : AppCompatActivity() {
         editor.apply()
         val intent = Intent(this, Login::class.java)
         startActivity(intent)
-        Toast.makeText(this, "You have successfully registered", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "Te has registrado exitosamente", Toast.LENGTH_SHORT).show()
     }
 }

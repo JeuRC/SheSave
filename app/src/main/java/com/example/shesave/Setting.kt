@@ -26,10 +26,6 @@ class Setting : AppCompatActivity() {
         }
 
         imgLogout.setOnClickListener {
-            val prefs = getSharedPreferences(getString(R.string.txtSignIn), Context.MODE_PRIVATE)
-            val editor = prefs.edit()
-            editor.clear()
-            editor.apply()
             val intent = Intent(this, Login::class.java)
             startActivity(intent)
         }
