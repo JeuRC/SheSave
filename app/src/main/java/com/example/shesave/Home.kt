@@ -2,8 +2,11 @@ package com.example.shesave
 
 import android.Manifest
 import android.app.Activity
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.widget.Button
+import android.widget.ImageButton
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -25,8 +28,29 @@ class Home : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        supportActionBar?.hide()
         setContentView(R.layout.activity_home)
         createFragment()
+
+        val btnSetting = findViewById<Button>(R.id.btnSetting)
+        val imgRecording = findViewById<ImageButton>(R.id.imgRecording)
+        val imgContacts = findViewById<ImageButton>(R.id.imgContacts)
+
+        btnSetting.setOnClickListener {
+            val intent = Intent(this, Setting::class.java)
+            startActivity(intent)
+        }
+
+        imgRecording.setOnClickListener {
+            val intent = Intent(this, Setting::class.java)
+            startActivity(intent)
+        }
+
+        imgContacts.setOnClickListener {
+            val intent = Intent(this, Contacts::class.java)
+            startActivity(intent)
+        }
+
     }
 
     private fun createFragment() {
@@ -41,7 +65,7 @@ class Home : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun createMarker() {
-        val coordinates = LatLng(4.588875, -74.217907)
+        val coordinates = LatLng(4.588889, -74.217925)
         val marker = MarkerOptions().position(coordinates).title("Ubi")
         map.addMarker(marker)
         map.animateCamera(
@@ -87,12 +111,13 @@ class Home : AppCompatActivity(), OnMapReadyCallback {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        when(requestCode) {
+        when (requestCode) {
             REQUEST_CODE_LOCATION -> if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 map.isMyLocationEnabled = true
-            }else{
+            } else {
                 Toast.makeText(this, "Accept the permissions", Toast.LENGTH_SHORT).show()
             }
+
             else -> {}
         }
     }
@@ -100,7 +125,7 @@ class Home : AppCompatActivity(), OnMapReadyCallback {
     override fun onResumeFragments() {
         super.onResumeFragments()
         if (!::map.isInitialized) return
-        if(!isLocationPermissionGranted()){
+        if (!isLocationPermissionGranted()) {
             map.isMyLocationEnabled = false
             Toast.makeText(this, "Accept the permissions", Toast.LENGTH_SHORT).show()
         }

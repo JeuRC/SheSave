@@ -10,6 +10,7 @@
     <color name="cian_app">#51E4FF</color>
     <color name="purple_app">#BA55D3</color>
     <color name="link">#0645AD</color>
+    <color name="transparent">#0000</color>
 
     <!--reds-->
     <color name="md_red_50">#FFEBEE</color>
