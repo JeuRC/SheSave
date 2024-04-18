@@ -38,6 +38,6 @@ class ChangePassword : AppCompatActivity() {
         editor.apply()
         val intent = Intent(this, Setting::class.java)
         startActivity(intent)
-        Toast.makeText(this, "Password3 successfully changed", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "Contraseña cambiada correctamente", Toast.LENGTH_SHORT).show()
     }
 }

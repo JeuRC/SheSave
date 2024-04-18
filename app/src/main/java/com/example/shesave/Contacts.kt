@@ -2,12 +2,11 @@ package com.example.shesave
 
 import android.content.Context
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
-import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -42,20 +41,17 @@ class Contacts : AppCompatActivity() {
             val intent = Intent(this, Setting::class.java)
             startActivity(intent)
         }
+    }
 
+    override fun onResume() {
+        super.onResume()
         loadContact()
         initRecyclerView()
     }
 
     private fun initRecyclerView() {
-        val prefs = getSharedPreferences(getString(R.string.txtContacts), Context.MODE_PRIVATE)
-        val name = prefs.getString("Name", null)
-        if (!name.isNullOrEmpty()) {
-            val data = Contact(name.toString())
-            contactList.add(data)
-        }
-        saveContact()
-        adapter = Adapter(list = contactList, onClickDelete = { position -> onDeletedItem(position) })
+        adapter =
+            Adapter(list = contactList, onClickDelete = { position -> onDeletedItem(position) })
         val manager = LinearLayoutManager(this)
         val decoration = DividerItemDecoration(this, manager.orientation)
         val recyclerView = findViewById<RecyclerView>(R.id.rvwContacts)

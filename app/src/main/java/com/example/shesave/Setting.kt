@@ -18,6 +18,7 @@ class Setting : AppCompatActivity() {
         val imgEdit_email = findViewById<ImageButton>(R.id.imgEdit_email)
         val imgEdit_characters = findViewById<ImageButton>(R.id.imgEdit_characters)
         val imgRecording = findViewById<ImageButton>(R.id.imgRecording)
+        val imgMessage = findViewById<ImageButton>(R.id.imgMessage)
         val imgEmergency_contacts = findViewById<ImageButton>(R.id.imgEmergency_contacts)
 
         imgBack.setOnClickListener {
@@ -42,6 +43,11 @@ class Setting : AppCompatActivity() {
 
         imgRecording.setOnClickListener {
 
+        }
+
+        imgMessage.setOnClickListener {
+            val intent = Intent(this, EmergencyText::class.java)
+            startActivity(intent)
         }
 
         imgEmergency_contacts.setOnClickListener {

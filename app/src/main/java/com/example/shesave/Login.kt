@@ -2,14 +2,12 @@ package com.example.shesave
 
 import android.content.Context
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
-import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.appcompat.app.AppCompatActivity
 
 class Login : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -21,6 +19,7 @@ class Login : AppCompatActivity() {
         val edtPassword = findViewById<EditText>(R.id.edtPassword)
         val btnLogin = findViewById<Button>(R.id.btnLogin)
         val txtLogin2 = findViewById<TextView>(R.id.txtLogin2)
+        val txtLogin3 = findViewById<TextView>(R.id.txtLogin3)
 
         btnLogin.setOnClickListener {
             if (edtEmail.text.toString().isNotEmpty() && edtPassword.text.toString().isNotEmpty()) {
@@ -32,6 +31,11 @@ class Login : AppCompatActivity() {
 
         txtLogin2.setOnClickListener {
             val intent = Intent(this, SignIn::class.java)
+            startActivity(intent)
+        }
+
+        txtLogin3.setOnClickListener {
+            val intent = Intent(this, ResetPassword::class.java)
             startActivity(intent)
         }
     }

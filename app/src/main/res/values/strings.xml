@@ -1,9 +1,9 @@
 <resources>
     <string name="app_name">SheSave</string>
     <string name="txtLogin">Ingreso</string>
-    <string name="txtEmail">Correo electronico</string>
+    <string name="txtEmail">Correo</string>
     <string name="txtPassword">Contraseña</string>
-    <string name="txtRPassword">Repita la contraseña</string>
+    <string name="txtRPassword">Repita la Contraseña</string>
     <string name="txtLogin1">No estas registrado?</string>
     <string name="txtLogin2">Registro</string>
     <string name="txtLogin3">Olvidaste tu contraseña?</string>
@@ -11,13 +11,15 @@
     <string name="txtSetting">Configuracion</string>
     <string name="txtName">Nombre</string>
     <string name="txtEmail_address">***@*****.com</string>
-    <string name="txtPasswordHidden">*************</string>
-    <string name="txtChangeEmail">Cambiar correo electronico</string>
-    <string name="txtChangePassword">Cambiar contraseña</string>
+    <string name="txtPassword_hidden">*************</string>
+    <string name="txtChange_email">Cambiar Correo</string>
+    <string name="txtChange_password">Cambiar Contraseña</string>
     <string name="txtAccept">Aceptar</string>
-    <string name="txtContacts">Contactos de emergencia</string>
-    <string name="txtAdd_contact">Añadir contacto</string>
+    <string name="txtContacts">Contactos de Emergencia</string>
+    <string name="txtAdd_contact">Añadir Contacto</string>
     <string name="txtCountry">Pais</string>
     <string name="txtNumber">Numero</string>
     <string name="txtSave">Gurdar</string>
+    <string name="txtEmergency_text">Texto de Emergencia</string>
+    <string name="txtReset_password">Restaurar Contraseña</string>
 </resources>
