@@ -25,7 +25,8 @@
         app:layout_constraintBottom_toBottomOf="@+id/viwBar"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/viwBar"
-        app:srcCompat="?attr/homeAsUpIndicator" />
+        app:srcCompat="?attr/homeAsUpIndicator"
+        tools:ignore="ContentDescription" />
 
     <TextView
         android:id="@+id/txtSignIn"
@@ -47,7 +48,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/viwBar"
-        app:srcCompat="@drawable/icon_logo" />
+        app:srcCompat="@drawable/icon_logo"
+        tools:ignore="ContentDescription" />
 
     <EditText
         android:id="@+id/edtEmail"

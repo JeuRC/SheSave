@@ -62,7 +62,7 @@
         android:scaleType="fitCenter"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/viwBar"
-        app:srcCompat="@drawable/logo_logout"
+        app:srcCompat="@drawable/icon_logout"
         tools:ignore="ContentDescription" />
 
     <TextView
@@ -86,19 +86,18 @@
         android:textColor="@color/white"
         android:textSize="20sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtEmail" />
+        app:layout_constraintTop_toBottomOf="@+id/txtEmail_address" />
 
     <TextView
         android:id="@+id/txtEmail_address"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="120sp"
         android:layout_marginEnd="40sp"
         android:text="@string/txtEmail_address"
         android:textColor="@color/white"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imgLogo" />
+        app:layout_constraintTop_toBottomOf="@+id/txtEmail" />
 
     <ImageButton
         android:id="@+id/imgEdit_email"
@@ -118,11 +117,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="40sp"
-        android:text="@string/txtPasswordHidden"
+        android:text="@string/txtPassword_hidden"
         android:textColor="@color/white"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtEmail_address" />
+        app:layout_constraintTop_toBottomOf="@+id/txtPassword" />
 
     <ImageButton
         android:id="@+id/imgEdit_characters"
@@ -153,6 +152,21 @@
         tools:ignore="ContentDescription" />
 
     <ImageButton
+        android:id="@+id/imgMessage"
+        android:layout_width="100sp"
+        android:layout_height="100sp"
+        android:layout_marginBottom="25sp"
+        android:adjustViewBounds="true"
+        android:background="@drawable/rounded_button"
+        android:backgroundTint="@color/purple_app"
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:srcCompat="@drawable/icon_text"
+        tools:ignore="ContentDescription" />
+
+    <ImageButton
         android:id="@+id/imgEmergency_contacts"
         android:layout_width="100sp"
         android:layout_height="100sp"
@@ -164,7 +178,7 @@
         android:scaleType="fitCenter"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/logo_emergency_contact"
+        app:srcCompat="@drawable/icon_emergency_contact"
         tools:ignore="ContentDescription" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,6 +1,5 @@
 package com.example.shesave
 
-import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -9,35 +8,34 @@ import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.Toast
 
-class ChangeEmail : AppCompatActivity() {
+class ResetPassword : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         supportActionBar?.hide()
-        setContentView(R.layout.activity_change_email)
+        setContentView(R.layout.activity_reset_password)
 
         val imgBack = findViewById<ImageButton>(R.id.imgBack)
         val edtEmail = findViewById<EditText>(R.id.edtEmail)
         val btnSend = findViewById<Button>(R.id.btnSend)
 
         imgBack.setOnClickListener {
-            val intent = Intent(this, Setting::class.java)
+            val intent = Intent(this, Login::class.java)
             startActivity(intent)
         }
 
         btnSend.setOnClickListener {
-            if (edtEmail.text.toString().isNotEmpty()) {
-                changeEmail(edtEmail.text.toString())
+            if (isValidEmail(edtEmail.text.toString())){
+                val intent = Intent(this, Login::class.java)
+                startActivity(intent)
+                Toast.makeText(this, "Funcionalidad aun no implementada", Toast.LENGTH_SHORT).show()
+            }else{
+                Toast.makeText(this, "Por favor, ingrese un correo electrónico válido", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
-    private fun changeEmail(edtEmail: String) {
-        val pref = getSharedPreferences(getString(R.string.txtSignIn), Context.MODE_PRIVATE)
-        val editor = pref.edit()
-        editor.putString("Email", edtEmail)
-        editor.apply()
-        val intent = Intent(this, Setting::class.java)
-        startActivity(intent)
-        Toast.makeText(this, "El correo se cambió correctamente", Toast.LENGTH_SHORT).show()
+    private fun isValidEmail(email: String): Boolean {
+        val emailRegex = "^[A-Za-z](.*)([@]{1})(.{1,})(\\.)(.{1,})"
+        return email.matches(emailRegex.toRegex())
     }
 }

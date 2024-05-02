@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.shesave.Contact
 import com.example.shesave.R
 
-class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+class ContactsViewHolder(view: View) : RecyclerView.ViewHolder(view) {
     private val name = view.findViewById<TextView>(R.id.txtContact)
     private val delete = view.findViewById<ImageButton>(R.id.imgDelete)
 

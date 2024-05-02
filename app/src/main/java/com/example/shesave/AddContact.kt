@@ -1,15 +1,28 @@
 package com.example.shesave
 
+import android.Manifest
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.provider.ContactsContract
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.Toast
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 
 class AddContact : AppCompatActivity() {
+
+    companion object {
+        private const val CONTACT_PICK_REQUEST = 1
+        private const val CONTACTS_PERMISSION_REQUEST_CODE = 101
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         supportActionBar?.hide()
@@ -27,26 +40,105 @@ class AddContact : AppCompatActivity() {
         }
 
         imgContacts.setOnClickListener {
-
+            checkContactsPermission()
         }
 
         btnSave.setOnClickListener {
             if (edtName.text.toString().isNotEmpty() && edtNumber.text.toString().isNotEmpty()) {
                 save(edtName.text.toString(), edtNumber.text.toString())
             } else {
-                Toast.makeText(this, "You must fill out all the fields", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, "Debes llenar todos los campos", Toast.LENGTH_LONG).show()
             }
         }
     }
 
+    private fun openContacts() {
+        val intent = Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI)
+        startActivityForResult(intent, CONTACT_PICK_REQUEST)
+    }
+
     private fun save(edtName: String, edtNumber: String) {
-        val pref = getSharedPreferences(getString(R.string.txtContacts), Context.MODE_PRIVATE)
-        val editor = pref.edit()
-        editor.putString("Name", edtName)
-        editor.putString("Number", edtNumber)
+        val newContact = Contact(edtName, edtNumber)
+        val sharedPreferences = getSharedPreferences("SHARED_PREFS", Context.MODE_PRIVATE)
+        val gson = Gson()
+        val json = sharedPreferences.getString("CONTACT_LIST", null)
+        val type = object : TypeToken<MutableList<Contact>>() {}.type
+        val contacts =
+            if (json != null) gson.fromJson<MutableList<Contact>>(json, type) else mutableListOf()
+        contacts.add(newContact)
+        val editor = sharedPreferences.edit()
+        editor.putString("CONTACT_LIST", gson.toJson(contacts))
         editor.apply()
-        val intent = Intent(this, Contacts::class.java)
-        startActivity(intent)
-        Toast.makeText(this, "You have successfully registered", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "El contacto se ha guardado exitosamente", Toast.LENGTH_SHORT).show()
+        onBackPressed()
+    }
+
+    private fun checkContactsPermission() {
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.READ_CONTACTS
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.READ_CONTACTS),
+                CONTACTS_PERMISSION_REQUEST_CODE
+            )
+        } else {
+            openContacts()
+        }
+    }
+
+    private fun getContactPhoneNumber(cursor: android.database.Cursor): String {
+        val contactId =
+            cursor.getString(cursor.getColumnIndexOrThrow(ContactsContract.Contacts._ID))
+        val phoneCursor = contentResolver.query(
+            ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+            null,
+            ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?",
+            arrayOf(contactId),
+            null
+        )
+        var phoneNumber = ""
+        if (phoneCursor?.moveToFirst() == true) {
+            phoneNumber =
+                phoneCursor.getString(phoneCursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.NUMBER))
+        }
+        phoneCursor?.close()
+        return phoneNumber
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == CONTACTS_PERMISSION_REQUEST_CODE) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                openContacts()
+            } else {
+                Toast.makeText(
+                    this,
+                    "Permiso denegado, no se puede acceder a los contactos",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == CONTACT_PICK_REQUEST && resultCode == RESULT_OK) {
+            val contactData = data?.data
+            val cursor = contentResolver.query(contactData!!, null, null, null, null)
+            if (cursor?.moveToFirst() == true) {
+                val name =
+                    cursor.getString(cursor.getColumnIndexOrThrow(ContactsContract.Contacts.DISPLAY_NAME))
+                val number = getContactPhoneNumber(cursor)
+                cursor.close()
+                save(name, number)
+            }
+        }
     }
 }
