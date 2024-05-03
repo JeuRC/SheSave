@@ -45,7 +45,20 @@ class AddContact : AppCompatActivity() {
 
         btnSave.setOnClickListener {
             if (edtName.text.toString().isNotEmpty() && edtNumber.text.toString().isNotEmpty()) {
-                save(edtName.text.toString(), edtNumber.text.toString())
+                if (edtNumber.text.toString().length == 10) {
+                    if (edtNumber.text.toString().startsWith("3")) {
+                        save(edtName.text.toString(), edtNumber.text.toString())
+                    } else {
+                        Toast.makeText(
+                            this,
+                            "El numero debe comenzar con el digito 3",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                } else {
+                    Toast.makeText(this, "El numero debe tener 10 digitos", Toast.LENGTH_LONG)
+                        .show()
+                }
             } else {
                 Toast.makeText(this, "Debes llenar todos los campos", Toast.LENGTH_LONG).show()
             }

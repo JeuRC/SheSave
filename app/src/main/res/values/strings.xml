@@ -19,7 +19,11 @@
     <string name="txtAdd_contact">Añadir Contacto</string>
     <string name="txtCountry">Pais</string>
     <string name="txtNumber">Numero</string>
-    <string name="txtSave">Gurdar</string>
+    <string name="txtSave">Guardar</string>
     <string name="txtEmergency_text">Texto de Emergencia</string>
     <string name="txtReset_password">Restaurar Contraseña</string>
+    <string name="txtRecording">Grabaciones</string>
+    <string name="txtAudioRecording">Grabacion de audio</string>
+    <string name="txtVideoRecording">Grabacion de video</string>
+    <string name="txtEmergency_text_view">!!!Necesito Ayuda!!!</string>
 </resources>

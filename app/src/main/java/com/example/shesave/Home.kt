@@ -5,11 +5,14 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
+import android.media.MediaRecorder
 import android.os.Bundle
+import android.os.CountDownTimer
+import android.os.Environment
 import android.os.Handler
+import android.provider.MediaStore
 import android.telephony.SmsManager
 import android.view.MotionEvent
-import android.widget.Button
 import android.widget.ImageButton
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -22,20 +25,24 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-
+import java.io.File
 
 class Home : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var map: GoogleMap
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private var recordingName: String? = null
+    private var recordingTrack: String? = null
+    private var mediaRecorder: MediaRecorder? = null
+    private var recordingTimer: CountDownTimer? = null
     private var isSosButtonPressed = false
     private val sosHandler = Handler()
     private val sosRunnable = Runnable {
         if (isSosButtonPressed) {
             sendSosMessage()
+            val recording = startRecording()
         }
     }
 
@@ -53,7 +60,7 @@ class Home : AppCompatActivity(), OnMapReadyCallback {
         createFragment()
 
         val btnSetting = findViewById<ImageButton>(R.id.btnSetting)
-        val btnSos = findViewById<Button>(R.id.btnSos)
+        val btnSos = findViewById<ImageButton>(R.id.btnSos)
         val imgRecording = findViewById<ImageButton>(R.id.imgRecording)
         val imgContacts = findViewById<ImageButton>(R.id.imgContacts)
 
@@ -77,7 +84,7 @@ class Home : AppCompatActivity(), OnMapReadyCallback {
         }
 
         imgRecording.setOnClickListener {
-            val intent = Intent(this, Setting::class.java)
+            val intent = Intent(this, Recordings::class.java)
             startActivity(intent)
         }
 
@@ -89,6 +96,125 @@ class Home : AppCompatActivity(), OnMapReadyCallback {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         getCurrentLocation()
+    }
+
+    private fun startRecording() {
+        val prefs = getSharedPreferences("IS_AUDIO_ENABLED", Context.MODE_PRIVATE)
+        val AudioChecked = prefs.getBoolean("AudioChecked", false)
+        val VideoChecked = prefs.getBoolean("VideoChecked", false)
+        val fileName = "REC_${System.currentTimeMillis()}.3gp"
+        val outputFile =
+            File(getExternalFilesDir(Environment.DIRECTORY_MUSIC), "MyRecording/$fileName")
+        if (AudioChecked && !VideoChecked) {
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.RECORD_AUDIO
+                ) == PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
+
+                val currentTimeMillis = System.currentTimeMillis()
+
+                try {
+                    mediaRecorder = MediaRecorder()
+                    mediaRecorder?.setAudioSource(MediaRecorder.AudioSource.MIC)
+                    mediaRecorder?.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
+                    mediaRecorder?.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
+                    mediaRecorder?.setOutputFile(outputFile.absolutePath)
+
+                    mediaRecorder?.prepare()
+                    mediaRecorder?.start()
+
+                    recordingName = currentTimeMillis.toString()
+                    recordingTrack = outputFile.absolutePath
+                    val recording = Recording(
+                        recordingName.toString(),
+                        recordingTrack.toString(),
+                        currentTimeMillis
+                    )
+                    recordingFile(recording)
+
+                    startTimer()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    Toast.makeText(this, "Error al iniciar la grabación", Toast.LENGTH_SHORT).show()
+                }
+
+            } else {
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(
+                        Manifest.permission.RECORD_AUDIO,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE
+                    ),
+                    0
+                )
+            }
+        }
+        if ((VideoChecked && !AudioChecked) || (VideoChecked && AudioChecked)) {
+            if (ContextCompat.checkSelfPermission(
+                    this@Home,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+                ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                    this@Home,
+                    Manifest.permission.CAMERA
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                ActivityCompat.requestPermissions(
+                    this@Home,
+                    arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA),
+                    1000
+                )
+            }
+            val REQUEST_VIDEO_CAPTURE = 1
+            Intent(MediaStore.ACTION_VIDEO_CAPTURE).also { video ->
+                video.resolveActivity(packageManager)?.also {
+                    startActivityForResult(video, REQUEST_VIDEO_CAPTURE)
+                }
+            }
+        }
+    }
+
+    private fun startTimer() {
+        recordingTimer = object : CountDownTimer(60000, 1000) {
+            override fun onTick(millisUntilFinished: Long) {
+                // Actualizar UI con el tiempo restante si es necesario
+            }
+
+            override fun onFinish() {
+                stopRecording()
+            }
+        }.start()
+    }
+
+    private fun recordingFile(recording: Recording) {
+        val prefs = getSharedPreferences("Recordings", Context.MODE_PRIVATE)
+        val gson = Gson()
+        val json = prefs.getString("RECORDING_LIST", null)
+        val type = object : TypeToken<MutableList<Recording>>() {}.type
+        val recordings =
+            if (json != null) gson.fromJson<MutableList<Recording>>(json, type) else mutableListOf()
+        recordings.add(recording)
+        val edit = prefs.edit()
+        edit.putString("RECORDING_LIST", gson.toJson(recordings))
+        edit.apply()
+    }
+
+    private fun stopRecording() {
+        try {
+            mediaRecorder?.stop()
+            mediaRecorder?.release()
+            mediaRecorder = null
+            recordingTimer?.cancel()
+            recordingTimer = null
+            Toast.makeText(this, "Grabación finalizada", Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Toast.makeText(this, "Error al detener la grabación", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun sendSosMessage() {
@@ -112,7 +238,10 @@ class Home : AppCompatActivity(), OnMapReadyCallback {
             val smsManager = SmsManager.getDefault()
             val prefs =
                 getSharedPreferences(getString(R.string.txtEmergency_text), Context.MODE_PRIVATE)
-            val SOS_MESSAGE = prefs.getString("Text", null) + "\n" + "Mi ubiacion actual es esta: " + createMapLink()
+            val SOS_MESSAGE = prefs.getString(
+                "Text",
+                "!!!Necesito Ayuda!!!"
+            ) + "\n" + "Mi ubicacion actual es esta: " + createMapLink()
             val phoneNumbers = SOS_PHONE_NUMBER.split(",")
             phoneNumbers.forEach { number ->
                 smsManager.sendTextMessage(number.trim(), null, SOS_MESSAGE, null, null)
@@ -127,11 +256,6 @@ class Home : AppCompatActivity(), OnMapReadyCallback {
     private fun createFragment() {
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
-    }
-
-    override fun onMapReady(googleMap: GoogleMap) {
-        map = googleMap
-        enableLocation()
     }
 
     private fun isLocationPermissionGranted() = ContextCompat.checkSelfPermission(
@@ -166,28 +290,35 @@ class Home : AppCompatActivity(), OnMapReadyCallback {
 
     private fun getCurrentLocation() {
         if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            Toast.makeText(this, "No se han otorgado permisos de ubicación", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "No se han otorgado permisos de ubicación", Toast.LENGTH_SHORT)
+                .show()
             return
         }
 
-        fusedLocationClient.lastLocation
-            .addOnSuccessListener { location: Location? ->
-                if (location != null) {
-                    val coordinates = LatLng(location.latitude, location.longitude)
-                    map.animateCamera(
-                        CameraUpdateFactory.newLatLngZoom(coordinates, 18f),
-                        4000,
-                        null
-                    )
-                    val pref = getSharedPreferences("RealTimeLocation", Context.MODE_PRIVATE)
-                    val editor = pref.edit()
-                    editor.putString("Latitude", location.latitude.toString())
-                    editor.putString("Longitude", location.longitude.toString())
-                    editor.apply()
-                } else {
-                    Toast.makeText(this, "No se pudo obtener la ubicación actual", Toast.LENGTH_SHORT).show()
+        if (::map.isInitialized && checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            fusedLocationClient.lastLocation
+                .addOnSuccessListener { location: Location? ->
+                    if (location != null) {
+                        val coordinates = LatLng(location.latitude, location.longitude)
+                        map.animateCamera(
+                            CameraUpdateFactory.newLatLngZoom(coordinates, 18f),
+                            4000,
+                            null
+                        )
+                        val pref = getSharedPreferences("RealTimeLocation", Context.MODE_PRIVATE)
+                        val editor = pref.edit()
+                        editor.putString("Latitude", location.latitude.toString())
+                        editor.putString("Longitude", location.longitude.toString())
+                        editor.apply()
+                    } else {
+                        Toast.makeText(
+                            this,
+                            "No se pudo obtener la ubicación actual",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
                 }
-            }
+        }
     }
 
     private fun createMapLink(): String {
@@ -216,6 +347,12 @@ class Home : AppCompatActivity(), OnMapReadyCallback {
     override fun onResume() {
         super.onResume()
         updateSosPhoneNumber()
+    }
+
+    override fun onMapReady(googleMap: GoogleMap) {
+        map = googleMap
+        enableLocation()
+        getCurrentLocation()
     }
 
     override fun onRequestPermissionsResult(
@@ -250,6 +387,7 @@ class Home : AppCompatActivity(), OnMapReadyCallback {
         if (!::map.isInitialized) return
         if (!isLocationPermissionGranted()) {
             map.isMyLocationEnabled = false
+            requestLocationPermission()
             Toast.makeText(this, "Acepta los permisos", Toast.LENGTH_SHORT).show()
         }
     }

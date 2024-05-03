@@ -6,16 +6,17 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.shesave.adapter.Adapter
+import com.example.shesave.adapter.ContactsAdapter
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
 private val contactList = mutableListOf<Contact>()
-private lateinit var adapter: Adapter
+private lateinit var adapter: ContactsAdapter
 
 class Contacts : AppCompatActivity() {
 
@@ -28,8 +29,7 @@ class Contacts : AppCompatActivity() {
         val btnAccept = findViewById<Button>(R.id.btnAccept)
 
         imgBack.setOnClickListener {
-            val intent = Intent(this, Setting::class.java)
-            startActivity(intent)
+            onBackPressed()
         }
 
         txtAdd_contact.setOnClickListener {
@@ -50,8 +50,10 @@ class Contacts : AppCompatActivity() {
     }
 
     private fun initRecyclerView() {
-        adapter =
-            Adapter(list = contactList, onClickDelete = { position -> onDeletedItem(position) })
+        adapter = ContactsAdapter(
+            list = contactList,
+            onClickDelete = { position -> onDeletedItem(position) },
+            onClickItem = { contact -> showContactDetails(contact) })
         val manager = LinearLayoutManager(this)
         val decoration = DividerItemDecoration(this, manager.orientation)
         val recyclerView = findViewById<RecyclerView>(R.id.rvwContacts)
@@ -64,6 +66,14 @@ class Contacts : AppCompatActivity() {
         contactList.removeAt(position)
         adapter.notifyItemRemoved(position)
         saveContact()
+    }
+
+    private fun showContactDetails(contact: Contact) {
+        AlertDialog.Builder(this)
+            .setTitle(contact.name)
+            .setMessage(contact.number)
+            .setPositiveButton("OK") { dialog, _ -> dialog.dismiss() }
+            .show()
     }
 
     private fun saveContact() {
