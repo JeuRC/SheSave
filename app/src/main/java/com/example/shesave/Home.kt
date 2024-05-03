@@ -387,6 +387,7 @@ class Home : AppCompatActivity(), OnMapReadyCallback {
         if (!::map.isInitialized) return
         if (!isLocationPermissionGranted()) {
             map.isMyLocationEnabled = false
+
             requestLocationPermission()
             Toast.makeText(this, "Acepta los permisos", Toast.LENGTH_SHORT).show()
         }
