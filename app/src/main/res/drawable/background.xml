@@ -4,11 +4,10 @@
         <shape>
             <gradient
                 android:centerX="-100"
+                android:centerY="0.41"
                 android:endColor="@color/white"
                 android:startColor="#51E4FF"
-                android:type="sweep"
-                android:centerY="0.41"
-                />
+                android:type="sweep" />
         </shape>
     </item>
 </layer-list>

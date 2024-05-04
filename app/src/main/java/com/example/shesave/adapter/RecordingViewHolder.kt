@@ -42,7 +42,7 @@ class RecordingViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         recordingModel?.let { model ->
             try {
                 mediaPlayer = MediaPlayer().apply {
-                    setDataSource(model.track) // Ruta del archivo de audio
+                    setDataSource(model.track)
                     prepare()
                     start()
                     setOnCompletionListener { stopPlaying() }

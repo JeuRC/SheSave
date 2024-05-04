@@ -42,10 +42,13 @@
 
     <ImageButton
         android:id="@+id/btnSos"
-        android:layout_width="150sp"
-        android:layout_height="150sp"
-        android:layout_marginBottom="80sp"
+        android:layout_width="200sp"
+        android:layout_height="200sp"
+        android:layout_marginBottom="100sp"
+        android:adjustViewBounds="true"
         android:background="@drawable/circle_button"
+        android:scaleType="fitCenter"
+        android:src="@drawable/icon_sos"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

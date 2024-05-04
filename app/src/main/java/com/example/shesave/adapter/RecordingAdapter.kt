@@ -6,7 +6,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.shesave.R
 import com.example.shesave.Recording
 
-class RecordingAdapter(private val list: List<Recording>, private val onClickDelete: (Int) -> Unit) :
+class RecordingAdapter(
+    private val list: List<Recording>,
+    private val onClickDelete: (Int) -> Unit
+) :
     RecyclerView.Adapter<RecordingViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecordingViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)

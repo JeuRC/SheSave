@@ -70,7 +70,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="40sp"
-        android:layout_marginTop="120sp"
+        android:layout_marginTop="110sp"
         android:text="@string/txtEmail"
         android:textColor="@color/white"
         android:textSize="20sp"
@@ -135,6 +135,28 @@
         app:layout_constraintTop_toTopOf="@+id/txtCharacters"
         app:srcCompat="@drawable/icon_edit"
         tools:ignore="ContentDescription" />
+
+    <androidx.appcompat.widget.SwitchCompat
+        android:id="@+id/txtAudioRecording"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="40sp"
+        android:text="@string/txtAudioRecording"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imgEdit_characters" />
+
+    <androidx.appcompat.widget.SwitchCompat
+        android:id="@+id/txtVideoRecording"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="40sp"
+        android:text="@string/txtVideoRecording"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtAudioRecording" />
 
     <ImageButton
         android:id="@+id/imgRecording"

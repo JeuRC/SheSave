@@ -13,6 +13,7 @@ class EmergencyText : AppCompatActivity() {
         setContentView(R.layout.activity_emergency_text)
 
         val imgBack = findViewById<ImageButton>(R.id.imgBack)
+        val txtText = findViewById<TextView>(R.id.txtText)
         val edtText = findViewById<EditText>(R.id.edtText)
         val btnAccept = findViewById<Button>(R.id.btnAccept)
 
@@ -26,6 +27,10 @@ class EmergencyText : AppCompatActivity() {
                 saveText(edtText.text.toString())
             }
         }
+
+        val pref = getSharedPreferences(getString(R.string.txtEmergency_text), Context.MODE_PRIVATE)
+        val savedText = pref.getString("Text", "")
+        txtText.text = savedText
     }
 
     private fun saveText(edtText: String) {

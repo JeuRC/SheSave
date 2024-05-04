@@ -24,8 +24,7 @@ class Recordings : AppCompatActivity() {
         val imgBack = findViewById<ImageButton>(R.id.imgBack)
 
         imgBack.setOnClickListener {
-            val intent = Intent(this, Setting::class.java)
-            startActivity(intent)
+            onBackPressed()
         }
 
         loadRecording()
@@ -38,7 +37,9 @@ class Recordings : AppCompatActivity() {
     }
 
     private fun initRecyclerView() {
-        adapter = RecordingAdapter(list = recordingList, onClickDelete = { position -> onDeletedItem(position) })
+        adapter = RecordingAdapter(
+            list = recordingList,
+            onClickDelete = { position -> onDeletedItem(position) })
         val manager = LinearLayoutManager(this)
         val decoration = DividerItemDecoration(this, manager.orientation)
         val recyclerView = findViewById<RecyclerView>(R.id.rvwRecordings)

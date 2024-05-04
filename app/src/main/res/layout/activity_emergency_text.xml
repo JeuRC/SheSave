@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:backgroundTint="@color/white"
     tools:context=".EmergencyText">
 
     <View
@@ -28,6 +29,7 @@
         tools:ignore="ContentDescription" />
 
     <TextView
+        android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/txtEmergency_text"
@@ -40,14 +42,37 @@
 
     <ImageView
         android:id="@+id/imgLogo"
-        android:layout_width="230sp"
-        android:layout_height="230sp"
+        android:layout_width="200sp"
+        android:layout_height="200sp"
         android:layout_marginTop="50sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/viwBar"
         app:srcCompat="@drawable/icon_logo"
         tools:ignore="ContentDescription" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/txtEmergency_text"
+        android:textColor="@color/purple_app"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/txtText"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/txtText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/txtEmergency_text_view"
+        android:textColor="@color/black"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toTopOf="@+id/edtText"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imgLogo" />
 
     <EditText
         android:id="@+id/edtText"
@@ -59,7 +84,7 @@
         android:inputType="textEmailAddress"
         android:textColor="@color/md_grey_700"
         android:textColorHint="@color/md_grey_700"
-        app:layout_constraintBottom_toTopOf="@+id/btnAccept"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imgLogo" />
@@ -75,6 +100,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imgLogo" />
+        app:layout_constraintTop_toBottomOf="@+id/edtText" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

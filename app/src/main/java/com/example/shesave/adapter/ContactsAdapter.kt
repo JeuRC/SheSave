@@ -6,7 +6,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.shesave.Contact
 import com.example.shesave.R
 
-class ContactsAdapter(private val list: List<Contact>, private val onClickDelete: (Int) -> Unit) :
+class ContactsAdapter(
+    private val list: List<Contact>,
+    private val onClickDelete: (Int) -> Unit,
+    private val onClickItem: (Contact) -> Unit
+) :
     RecyclerView.Adapter<ContactsViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ContactsViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
@@ -15,7 +19,9 @@ class ContactsAdapter(private val list: List<Contact>, private val onClickDelete
 
     override fun onBindViewHolder(holder: ContactsViewHolder, position: Int) {
         val item = list[position]
-        holder.render(item, onClickDelete)
+        holder.render(item, onClickDelete) {
+            onClickItem(item)
+        }
     }
 
     override fun getItemCount(): Int = list.size
