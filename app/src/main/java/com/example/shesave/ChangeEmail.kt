@@ -26,7 +26,14 @@ class ChangeEmail : AppCompatActivity() {
 
         btnSend.setOnClickListener {
             if (edtEmail.text.toString().isNotEmpty()) {
-                changeEmail(edtEmail.text.toString())
+                if (isValidEmail(edtEmail.text.toString())) {
+                    changeEmail(edtEmail.text.toString())
+                } else {
+                    Toast.makeText(this, "Ingrese un correo electrónico válido", Toast.LENGTH_LONG)
+                        .show()
+                }
+            } else {
+                Toast.makeText(this, "Ingresa un correo", Toast.LENGTH_LONG).show()
             }
         }
     }
@@ -39,5 +46,10 @@ class ChangeEmail : AppCompatActivity() {
         val intent = Intent(this, Setting::class.java)
         startActivity(intent)
         Toast.makeText(this, "El correo se cambió correctamente", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun isValidEmail(email: String): Boolean {
+        val emailRegex = "^[A-Za-z](.*)([@])(.+)(\\.)(.+)"
+        return email.matches(emailRegex.toRegex())
     }
 }
