@@ -35,7 +35,7 @@ class AddContact : AppCompatActivity() {
         val btnSave = findViewById<Button>(R.id.btnSave)
 
         imgBack.setOnClickListener {
-            val intent = Intent(this, Setting::class.java)
+            val intent = Intent(this, Contacts::class.java)
             startActivity(intent)
         }
 
