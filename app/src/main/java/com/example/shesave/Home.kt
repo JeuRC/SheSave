@@ -12,6 +12,7 @@ import android.os.Environment
 import android.os.Handler
 import android.provider.MediaStore
 import android.telephony.SmsManager
+import android.view.KeyEvent
 import android.view.MotionEvent
 import android.widget.ImageButton
 import android.widget.Toast
@@ -33,6 +34,8 @@ class Home : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var map: GoogleMap
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private var volumeUpCount = 0
+    private var volumeDownCount = 0
     private var recordingName: String? = null
     private var recordingTrack: String? = null
     private var mediaRecorder: MediaRecorder? = null
@@ -45,10 +48,22 @@ class Home : AppCompatActivity(), OnMapReadyCallback {
             val recording = startRecording()
         }
     }
+    private var isButtonPressed = false
+    private val handler = Handler()
+    private val resetRunnable = Runnable {
+        volumeUpCount = 0
+        volumeDownCount = 0
+        if (isButtonPressed) {
+            sendSosMessage()
+            val recording = startRecording()
+        }
+    }
 
     companion object {
         const val REQUEST_CODE_LOCATION = 0
         const val REQUEST_CODE_SMS_PERMISSION = 1
+        const val REQUEST_CODE_VIDEO_RECORDING = 0
+        const val REQUEST_CODE_AUDIO_RECORDING = 0
         var SOS_MESSAGE = ""
         var SOS_PHONE_NUMBER = ""
     }
@@ -96,85 +111,134 @@ class Home : AppCompatActivity(), OnMapReadyCallback {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         getCurrentLocation()
+
+        val serviceIntent = Intent(this, ButtonPressService::class.java)
+        startService(serviceIntent)
+
+        startService(Intent(this, ServiceAlert::class.java))
     }
 
     private fun startRecording() {
         val prefs = getSharedPreferences("IS_AUDIO_ENABLED", Context.MODE_PRIVATE)
         val AudioChecked = prefs.getBoolean("AudioChecked", false)
         val VideoChecked = prefs.getBoolean("VideoChecked", false)
-        val fileName = "REC_${System.currentTimeMillis()}.3gp"
-        val outputFile =
-            File(getExternalFilesDir(Environment.DIRECTORY_MUSIC), "MyRecording/$fileName")
         if (AudioChecked && !VideoChecked) {
-            if (ContextCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.RECORD_AUDIO
-                ) == PackageManager.PERMISSION_GRANTED &&
-                ContextCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE
-                ) == PackageManager.PERMISSION_GRANTED
-            ) {
-
-                val currentTimeMillis = System.currentTimeMillis()
-
-                try {
-                    mediaRecorder = MediaRecorder()
-                    mediaRecorder?.setAudioSource(MediaRecorder.AudioSource.MIC)
-                    mediaRecorder?.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
-                    mediaRecorder?.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
-                    mediaRecorder?.setOutputFile(outputFile.absolutePath)
-
-                    mediaRecorder?.prepare()
-                    mediaRecorder?.start()
-
-                    recordingName = currentTimeMillis.toString()
-                    recordingTrack = outputFile.absolutePath
-                    val recording = Recording(
-                        recordingName.toString(),
-                        recordingTrack.toString(),
-                        currentTimeMillis
-                    )
-                    recordingFile(recording)
-
-                    startTimer()
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                    Toast.makeText(this, "Error al iniciar la grabación", Toast.LENGTH_SHORT).show()
-                }
-
-            } else {
-                ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(
-                        Manifest.permission.RECORD_AUDIO,
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE
-                    ),
-                    0
-                )
-            }
+            startAudioRecording()
         }
-        if ((VideoChecked && !AudioChecked) || (VideoChecked && AudioChecked)) {
-            if (ContextCompat.checkSelfPermission(
-                    this@Home,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE
-                ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                    this@Home,
-                    Manifest.permission.CAMERA
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                ActivityCompat.requestPermissions(
-                    this@Home,
-                    arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA),
-                    1000
-                )
+        if (VideoChecked && !AudioChecked) {
+            startVideoRecording()
+        }
+    }
+
+    private fun startAudioRecording() {
+        if (isAudioRecordingPermissionGranted()) {
+            val fileName = "REC_${System.currentTimeMillis()}.3gp"
+            val outputFile =
+                File(getExternalFilesDir(Environment.DIRECTORY_MUSIC), "MyRecording/$fileName")
+            val currentTimeMillis = System.currentTimeMillis()
+
+            mediaRecorder = MediaRecorder()
+            mediaRecorder?.setAudioSource(MediaRecorder.AudioSource.MIC)
+            mediaRecorder?.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
+            mediaRecorder?.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
+            mediaRecorder?.setOutputFile(outputFile.absolutePath)
+            try {
+                mediaRecorder?.prepare()
+                mediaRecorder?.start()
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Toast.makeText(this, "Error al iniciar la grabación", Toast.LENGTH_SHORT).show()
             }
+            recordingName = currentTimeMillis.toString()
+            recordingTrack = outputFile.absolutePath
+            val recording = Recording(
+                recordingName.toString(),
+                recordingTrack.toString(),
+                currentTimeMillis
+            )
+            recordingFile(recording)
+
+            startTimer()
+        } else {
+            requestAudioRecordingPermission()
+        }
+    }
+
+    private fun startVideoRecording() {
+        if (isVideoRecordingPermissionGranted()) {
             val REQUEST_VIDEO_CAPTURE = 1
             Intent(MediaStore.ACTION_VIDEO_CAPTURE).also { video ->
                 video.resolveActivity(packageManager)?.also {
                     startActivityForResult(video, REQUEST_VIDEO_CAPTURE)
                 }
             }
+        } else {
+            requestVideoRecordingPermission()
+        }
+    }
+
+    private fun isAudioRecordingPermissionGranted() = ContextCompat.checkSelfPermission(
+        this,
+        Manifest.permission.WRITE_EXTERNAL_STORAGE
+    ) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(
+        this,
+        Manifest.permission.RECORD_AUDIO
+    ) == PackageManager.PERMISSION_GRANTED
+
+    private fun isVideoRecordingPermissionGranted() = ContextCompat.checkSelfPermission(
+        this,
+        Manifest.permission.WRITE_EXTERNAL_STORAGE
+    ) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(
+        this,
+        Manifest.permission.CAMERA
+    ) == PackageManager.PERMISSION_GRANTED
+
+    private fun requestAudioRecordingPermission() {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(
+                this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            ) && ActivityCompat.shouldShowRequestPermissionRationale(
+                this,
+                Manifest.permission.RECORD_AUDIO
+            )
+        ) {
+            Toast.makeText(
+                this,
+                "Acepta los permisos de almacenamiento y audio",
+                Toast.LENGTH_SHORT
+            ).show()
+        } else {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    Manifest.permission.RECORD_AUDIO
+                ),
+                REQUEST_CODE_AUDIO_RECORDING
+            )
+        }
+    }
+
+    private fun requestVideoRecordingPermission() {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(
+                this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            ) && ActivityCompat.shouldShowRequestPermissionRationale(
+                this,
+                Manifest.permission.CAMERA
+            )
+        ) {
+            Toast.makeText(
+                this,
+                "Acepta los permisos de almacenamiento y camara",
+                Toast.LENGTH_SHORT
+            ).show()
+        } else {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA),
+                REQUEST_CODE_VIDEO_RECORDING
+            )
         }
     }
 
@@ -229,7 +293,12 @@ class Home : AppCompatActivity(), OnMapReadyCallback {
                 REQUEST_CODE_SMS_PERMISSION
             )
         } else {
-            sendSms()
+            updateSosPhoneNumber()
+            if (SOS_PHONE_NUMBER.isBlank()) {
+                Toast.makeText(this, "No hay contactos de emergencia configurados", Toast.LENGTH_LONG).show()
+            } else {
+                sendSms()
+            }
         }
     }
 
@@ -278,7 +347,7 @@ class Home : AppCompatActivity(), OnMapReadyCallback {
                 Manifest.permission.ACCESS_FINE_LOCATION
             )
         ) {
-            Toast.makeText(this, "Acepta los permisos", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Acepta los permisos de localizacion", Toast.LENGTH_SHORT).show()
         } else {
             ActivityCompat.requestPermissions(
                 this,
@@ -349,6 +418,44 @@ class Home : AppCompatActivity(), OnMapReadyCallback {
         updateSosPhoneNumber()
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        val serviceIntent = Intent(this, ButtonPressService::class.java)
+        stopService(serviceIntent)
+    }
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
+        when (keyCode) {
+            KeyEvent.KEYCODE_POWER -> {
+                handler.removeCallbacks(resetRunnable)
+                volumeUpCount++
+                if (volumeUpCount == 1) {
+                    isButtonPressed = true
+                    volumeUpCount = 0
+                }
+                handler.postDelayed(
+                    resetRunnable,
+                    2000
+                )
+                return true
+            }
+            KeyEvent.KEYCODE_VOLUME_DOWN -> {
+                handler.removeCallbacks(resetRunnable)
+                volumeDownCount++
+                if (volumeDownCount == 4) {
+                    isButtonPressed = true
+                    volumeDownCount = 0
+                }
+                handler.postDelayed(
+                    resetRunnable,
+                    2000
+                )
+                return true
+            }
+        }
+        return super.onKeyDown(keyCode, event)
+    }
+
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
         enableLocation()
@@ -367,7 +474,7 @@ class Home : AppCompatActivity(), OnMapReadyCallback {
             } else {
                 Toast.makeText(
                     this,
-                    "Permiso para enviar mensajes de texto denegado",
+                    "Acepta los permisos para enviar mensajes de texto",
                     Toast.LENGTH_SHORT
                 ).show()
             }
@@ -376,7 +483,26 @@ class Home : AppCompatActivity(), OnMapReadyCallback {
             REQUEST_CODE_LOCATION -> if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 map.isMyLocationEnabled = true
             } else {
-                Toast.makeText(this, "Acepta los permisos", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Acepta los permisos de localizacion", Toast.LENGTH_SHORT)
+                    .show()
+            }
+            else -> {}
+        }
+        when (requestCode) {
+            REQUEST_CODE_AUDIO_RECORDING -> if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+            } else {
+                Toast.makeText(this, "Acepta los permisos de alamacenamiento y audio", Toast.LENGTH_SHORT)
+                    .show()
+            }
+            else -> {}
+        }
+        when (requestCode) {
+            REQUEST_CODE_VIDEO_RECORDING -> if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+            } else {
+                Toast.makeText(this, "Acepta los permisos de alamacenamiento y camara", Toast.LENGTH_SHORT)
+                    .show()
             }
             else -> {}
         }
@@ -389,7 +515,7 @@ class Home : AppCompatActivity(), OnMapReadyCallback {
             map.isMyLocationEnabled = false
 
             requestLocationPermission()
-            Toast.makeText(this, "Acepta los permisos", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Acepta los permisos de localizacion", Toast.LENGTH_SHORT).show()
         }
     }
 }

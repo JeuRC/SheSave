@@ -53,10 +53,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/viwOptions"
-        tools:ignore="SpeakableTextPresentCheck"
-        android:src="@drawable/icon_sos"
-        android:adjustViewBounds="true"
-        android:scaleType="fitCenter" />
+        tools:ignore="SpeakableTextPresentCheck" />
 
     <ImageButton
         android:id="@+id/imgRecording"

@@ -29,7 +29,8 @@ class Contacts : AppCompatActivity() {
         val btnAccept = findViewById<Button>(R.id.btnAccept)
 
         imgBack.setOnClickListener {
-            onBackPressed()
+            val intent = Intent(this, Setting::class.java)
+            startActivity(intent)
         }
 
         txtAdd_contact.setOnClickListener {
