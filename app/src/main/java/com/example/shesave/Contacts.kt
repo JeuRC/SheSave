@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -64,9 +65,31 @@ class Contacts : AppCompatActivity() {
     }
 
     private fun onDeletedItem(position: Int) {
-        contactList.removeAt(position)
-        adapter.notifyItemRemoved(position)
-        saveContact()
+        val sharedPreferences = getSharedPreferences(getString(R.string.app_name), Context.MODE_PRIVATE)
+        val gson = Gson()
+
+        val currentUserEmail = sharedPreferences.getString("Email", null)
+        if (currentUserEmail == null) {
+            Toast.makeText(this, "No se encontró el usuario actual", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val json = sharedPreferences.getString("USER_LIST", null)
+        val type = object : TypeToken<MutableList<User>>() {}.type
+        val users = if (json != null) gson.fromJson<MutableList<User>>(json, type) else mutableListOf()
+
+        val currentUser = users.find { it.email == currentUserEmail }
+        if (currentUser != null) {
+            currentUser.contacts?.removeAt(position)
+            val editor = sharedPreferences.edit()
+            val updatedJson = gson.toJson(users)
+            editor.putString("USER_LIST", updatedJson)
+            editor.apply()
+            contactList.removeAt(position)
+            adapter.notifyItemRemoved(position)
+        } else {
+            Toast.makeText(this, "No se encontró el usuario actual", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun showContactDetails(contact: Contact) {
@@ -77,23 +100,39 @@ class Contacts : AppCompatActivity() {
             .show()
     }
 
-    private fun saveContact() {
-        val sharedPreferences = getSharedPreferences("SHARED_PREFS", Context.MODE_PRIVATE)
+    /*private fun saveContact() {
+        val sharedPreferences = getSharedPreferences(getString(R.string.app_name), Context.MODE_PRIVATE)
         val editor = sharedPreferences.edit()
         val gson = Gson()
         val json = gson.toJson(contactList)
         editor.putString("CONTACT_LIST", json)
         editor.apply()
-    }
+    }*/
 
     private fun loadContact() {
-        val sharedPreferences = getSharedPreferences("SHARED_PREFS", Context.MODE_PRIVATE)
+        val sharedPreferences = getSharedPreferences(getString(R.string.app_name), Context.MODE_PRIVATE)
         val gson = Gson()
-        val json = sharedPreferences.getString("CONTACT_LIST", null)
-        val type = object : TypeToken<MutableList<Contact>>() {}.type
-        contactList.clear()
-        if (json != null) {
-            contactList.addAll(gson.fromJson(json, type))
+
+        // Obtener el email del usuario actualmente registrado
+        val currentUserEmail = sharedPreferences.getString("Email", null)
+        if (currentUserEmail == null) {
+            Toast.makeText(this, "No se encontró el usuario actual", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val json = sharedPreferences.getString("USER_LIST", null)
+        val type = object : TypeToken<MutableList<User>>() {}.type
+        val users = if (json != null) gson.fromJson<MutableList<User>>(json, type) else mutableListOf()
+
+        val currentUser = users.find { it.email == currentUserEmail }
+        if (currentUser != null) {
+            contactList.clear()
+
+            currentUser.contacts?.let {
+                contactList.addAll(it)
+            }
+        } else {
+            Toast.makeText(this, "No se encontró el usuario actual", Toast.LENGTH_SHORT).show()
         }
     }
 }

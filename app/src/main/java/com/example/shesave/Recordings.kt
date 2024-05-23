@@ -55,7 +55,7 @@ class Recordings : AppCompatActivity() {
     }
 
     private fun saveRecording() {
-        val sharedPreferences = getSharedPreferences("Recordings", Context.MODE_PRIVATE)
+        val sharedPreferences = getSharedPreferences(getString(R.string.app_name), Context.MODE_PRIVATE)
         val editor = sharedPreferences.edit()
         val gson = Gson()
         val json = gson.toJson(recordingList)
@@ -64,7 +64,7 @@ class Recordings : AppCompatActivity() {
     }
 
     private fun loadRecording() {
-        val sharedPreferences = getSharedPreferences("Recordings", Context.MODE_PRIVATE)
+        val sharedPreferences = getSharedPreferences(getString(R.string.app_name), Context.MODE_PRIVATE)
         val gson = Gson()
         val json = sharedPreferences.getString("RECORDING_LIST", null)
         val type = object : TypeToken<MutableList<Recording>>() {}.type

@@ -71,19 +71,36 @@ class AddContact : AppCompatActivity() {
     }
 
     private fun save(edtName: String, edtNumber: String) {
-        val newContact = Contact(edtName, edtNumber)
-        val sharedPreferences = getSharedPreferences("SHARED_PREFS", Context.MODE_PRIVATE)
+        val sharedPreferences = getSharedPreferences(getString(R.string.app_name), Context.MODE_PRIVATE)
         val gson = Gson()
-        val json = sharedPreferences.getString("CONTACT_LIST", null)
-        val type = object : TypeToken<MutableList<Contact>>() {}.type
-        val contacts =
-            if (json != null) gson.fromJson<MutableList<Contact>>(json, type) else mutableListOf()
-        contacts.add(newContact)
-        val editor = sharedPreferences.edit()
-        editor.putString("CONTACT_LIST", gson.toJson(contacts))
-        editor.apply()
-        Toast.makeText(this, "El contacto se ha guardado exitosamente", Toast.LENGTH_SHORT).show()
-        onBackPressed()
+
+        val currentUserEmail = sharedPreferences.getString("Email", null)
+        if (currentUserEmail == null) {
+            Toast.makeText(this, "No se encontró el usuario actual", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val json = sharedPreferences.getString("USER_LIST", null)
+        val type = object : TypeToken<MutableList<User>>() {}.type
+        val users = if (json != null) gson.fromJson<MutableList<User>>(json, type) else mutableListOf()
+
+        val currentUser = users.find { it.email == currentUserEmail }
+        if (currentUser != null) {
+            if (currentUser.contacts == null) {
+                currentUser.contacts = mutableListOf()
+            }
+            val newContact = Contact(edtName, edtNumber)
+            currentUser.contacts.add(newContact)
+            val editor = sharedPreferences.edit()
+            val updatedJson = gson.toJson(users)
+            editor.putString("USER_LIST", updatedJson)
+            editor.apply()
+            val intent = Intent(this, Contacts::class.java)
+            startActivity(intent)
+            Toast.makeText(this, "Contacto guardado", Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(this, "No se encontró el usuario actual", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun checkContactsPermission() {

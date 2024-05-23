@@ -2,14 +2,20 @@ package com.example.shesave
 
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
 import android.text.InputType
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import com.example.shesave.alarm.ServiceAlert
+import com.example.shesave.alarm.PulseCountReceiver
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
 
 class Login : AppCompatActivity() {
+    private lateinit var receiver: PulseCountReceiver
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         supportActionBar?.hide()
@@ -54,19 +60,44 @@ class Login : AppCompatActivity() {
             val intent = Intent(this, ChangePassword::class.java)
             startActivity(intent)
         }
+
+        val intent = Intent(this, ServiceAlert::class.java)
+        startForegroundService(intent)
+
+        receiver = PulseCountReceiver()
     }
 
     private fun session() {
-        val prefs = getSharedPreferences(getString(R.string.txtSignIn), Context.MODE_PRIVATE)
-        val email = prefs.getString("Email", null)
-        val savedPasswordHash = prefs.getString("Password", null)
+        val prefs = getSharedPreferences(getString(R.string.app_name), Context.MODE_PRIVATE)
+        val json = prefs.getString("USER_LIST", null)
+        val gson = Gson()
+        val type = object : TypeToken<MutableList<User>>() {}.type
+        val users = if (json != null) gson.fromJson<MutableList<User>>(
+            json,
+            type
+        ) else mutableListOf<User>()
 
         val edtEmail = findViewById<EditText>(R.id.edtEmail)
         val edtPassword = findViewById<EditText>(R.id.edtPassword)
-
+        val enteredEmail = edtEmail.text.toString()
         val enteredPasswordHash = hashPassword(edtPassword.text.toString())
 
-        if (email != null && savedPasswordHash != null && email == edtEmail.text.toString() && savedPasswordHash == enteredPasswordHash) {
+        var userFound = false
+
+        for (user in users) {
+            if (user.email == enteredEmail && user.password == enteredPasswordHash) {
+                userFound = true
+                val pref = getSharedPreferences(getString(R.string.app_name), Context.MODE_PRIVATE)
+                val editor = pref.edit()
+                editor.putString("Email", enteredEmail)
+                editor.putString("Password", hashPassword(enteredPasswordHash))
+                editor.putInt("Length", edtPassword.text.toString().length)
+                editor.apply()
+                break
+            }
+        }
+
+        if (userFound) {
             showHome()
         } else {
             Toast.makeText(this, "Los datos ingresados no están registrados", Toast.LENGTH_SHORT)
@@ -89,5 +120,17 @@ class Login : AppCompatActivity() {
             e.printStackTrace()
             ""
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val filter = IntentFilter(Intent.ACTION_SCREEN_ON)
+        filter.addAction(Intent.ACTION_SCREEN_OFF)
+        registerReceiver(receiver, filter)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        unregisterReceiver(receiver)
     }
 }
