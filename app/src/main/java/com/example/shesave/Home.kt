@@ -11,14 +11,13 @@ import android.os.CountDownTimer
 import android.os.Environment
 import android.os.Handler
 import android.provider.MediaStore
-import android.telephony.SmsManager
-import android.view.KeyEvent
 import android.view.MotionEvent
 import android.widget.ImageButton
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.example.shesave.alarm.AlertMessage
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -34,28 +33,17 @@ class Home : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var map: GoogleMap
     private lateinit var fusedLocationClient: FusedLocationProviderClient
-    private var volumeUpCount = 0
-    private var volumeDownCount = 0
     private var recordingName: String? = null
     private var recordingTrack: String? = null
     private var mediaRecorder: MediaRecorder? = null
     private var recordingTimer: CountDownTimer? = null
     private var isSosButtonPressed = false
+    private var alert = AlertMessage()
     private val sosHandler = Handler()
     private val sosRunnable = Runnable {
         if (isSosButtonPressed) {
-            sendSosMessage()
-            val recording = startRecording()
-        }
-    }
-    private var isButtonPressed = false
-    private val handler = Handler()
-    private val resetRunnable = Runnable {
-        volumeUpCount = 0
-        volumeDownCount = 0
-        if (isButtonPressed) {
-            sendSosMessage()
-            val recording = startRecording()
+            alert.sendSosMessage(this)
+            startRecording()
         }
     }
 
@@ -64,8 +52,6 @@ class Home : AppCompatActivity(), OnMapReadyCallback {
         const val REQUEST_CODE_SMS_PERMISSION = 1
         const val REQUEST_CODE_VIDEO_RECORDING = 0
         const val REQUEST_CODE_AUDIO_RECORDING = 0
-        var SOS_MESSAGE = ""
-        var SOS_PHONE_NUMBER = ""
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -111,15 +97,10 @@ class Home : AppCompatActivity(), OnMapReadyCallback {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         getCurrentLocation()
-
-        val serviceIntent = Intent(this, ButtonPressService::class.java)
-        startService(serviceIntent)
-
-        startService(Intent(this, ServiceAlert::class.java))
     }
 
-    private fun startRecording() {
-        val prefs = getSharedPreferences("IS_AUDIO_ENABLED", Context.MODE_PRIVATE)
+    fun startRecording() {
+        val prefs = getSharedPreferences(getString(R.string.app_name), Context.MODE_PRIVATE)
         val AudioChecked = prefs.getBoolean("AudioChecked", false)
         val VideoChecked = prefs.getBoolean("VideoChecked", false)
         if (AudioChecked && !VideoChecked) {
@@ -255,7 +236,7 @@ class Home : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun recordingFile(recording: Recording) {
-        val prefs = getSharedPreferences("Recordings", Context.MODE_PRIVATE)
+        val prefs = getSharedPreferences(getString(R.string.app_name), Context.MODE_PRIVATE)
         val gson = Gson()
         val json = prefs.getString("RECORDING_LIST", null)
         val type = object : TypeToken<MutableList<Recording>>() {}.type
@@ -278,47 +259,6 @@ class Home : AppCompatActivity(), OnMapReadyCallback {
         } catch (e: Exception) {
             e.printStackTrace()
             Toast.makeText(this, "Error al detener la grabación", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    private fun sendSosMessage() {
-        if (ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.SEND_SMS
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.SEND_SMS),
-                REQUEST_CODE_SMS_PERMISSION
-            )
-        } else {
-            updateSosPhoneNumber()
-            if (SOS_PHONE_NUMBER.isBlank()) {
-                Toast.makeText(this, "No hay contactos de emergencia configurados", Toast.LENGTH_LONG).show()
-            } else {
-                sendSms()
-            }
-        }
-    }
-
-    private fun sendSms() {
-        try {
-            val smsManager = SmsManager.getDefault()
-            val prefs =
-                getSharedPreferences(getString(R.string.txtEmergency_text), Context.MODE_PRIVATE)
-            val SOS_MESSAGE = prefs.getString(
-                "Text",
-                "!!!Necesito Ayuda!!!"
-            ) + "\n" + "Mi ubicacion actual es esta: " + createMapLink()
-            val phoneNumbers = SOS_PHONE_NUMBER.split(",")
-            phoneNumbers.forEach { number ->
-                smsManager.sendTextMessage(number.trim(), null, SOS_MESSAGE, null, null)
-            }
-            Toast.makeText(this, "Mensaje de SOS enviado", Toast.LENGTH_SHORT).show()
-        } catch (ex: Exception) {
-            Toast.makeText(this, "Error al enviar el mensaje de SOS", Toast.LENGTH_SHORT).show()
-            ex.printStackTrace()
         }
     }
 
@@ -374,7 +314,7 @@ class Home : AppCompatActivity(), OnMapReadyCallback {
                             4000,
                             null
                         )
-                        val pref = getSharedPreferences("RealTimeLocation", Context.MODE_PRIVATE)
+                        val pref = getSharedPreferences(getString(R.string.app_name), Context.MODE_PRIVATE)
                         val editor = pref.edit()
                         editor.putString("Latitude", location.latitude.toString())
                         editor.putString("Longitude", location.longitude.toString())
@@ -390,70 +330,9 @@ class Home : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-    private fun createMapLink(): String {
-        val pref = getSharedPreferences("RealTimeLocation", Context.MODE_PRIVATE)
-        val latitude = pref.getString("Latitude", null)
-        val longitude = pref.getString("Longitude", null)
-        return "https://www.google.com/maps/search/?api=1&query=$latitude,$longitude"
-    }
-
-    private fun updateSosPhoneNumber() {
-        SOS_PHONE_NUMBER = getAllContactNumbers()
-    }
-
-    private fun getAllContactNumbers(): String {
-        val sharedPreferences = getSharedPreferences("SHARED_PREFS", Context.MODE_PRIVATE)
-        val gson = Gson()
-        val json = sharedPreferences.getString("CONTACT_LIST", null)
-        val type = object : TypeToken<MutableList<Contact>>() {}.type
-        val contacts =
-            if (json != null) gson.fromJson<MutableList<Contact>>(json, type) else mutableListOf()
-
-        val phoneNumbers = contacts.map { it.number }
-        return phoneNumbers.joinToString(separator = ",")
-    }
-
     override fun onResume() {
         super.onResume()
-        updateSosPhoneNumber()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        val serviceIntent = Intent(this, ButtonPressService::class.java)
-        stopService(serviceIntent)
-    }
-
-    override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
-        when (keyCode) {
-            KeyEvent.KEYCODE_POWER -> {
-                handler.removeCallbacks(resetRunnable)
-                volumeUpCount++
-                if (volumeUpCount == 1) {
-                    isButtonPressed = true
-                    volumeUpCount = 0
-                }
-                handler.postDelayed(
-                    resetRunnable,
-                    2000
-                )
-                return true
-            }
-            KeyEvent.KEYCODE_VOLUME_DOWN -> {
-                handler.removeCallbacks(resetRunnable)
-                volumeDownCount++
-                if (volumeDownCount == 4) {
-                    isButtonPressed = true
-                    volumeDownCount = 0
-                }
-                handler.postDelayed(
-                    resetRunnable,
-                    2000
-                )
-                return true
-            }
-        }
-        return super.onKeyDown(keyCode, event)
+        alert.updateSosPhoneNumber(this)
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
@@ -470,7 +349,7 @@ class Home : AppCompatActivity(), OnMapReadyCallback {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == REQUEST_CODE_SMS_PERMISSION) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                sendSms()
+                alert.sendSms(this)
             } else {
                 Toast.makeText(
                     this,
@@ -492,7 +371,11 @@ class Home : AppCompatActivity(), OnMapReadyCallback {
             REQUEST_CODE_AUDIO_RECORDING -> if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
             } else {
-                Toast.makeText(this, "Acepta los permisos de alamacenamiento y audio", Toast.LENGTH_SHORT)
+                Toast.makeText(
+                    this,
+                    "Acepta los permisos de alamacenamiento y audio",
+                    Toast.LENGTH_SHORT
+                )
                     .show()
             }
             else -> {}
@@ -501,7 +384,11 @@ class Home : AppCompatActivity(), OnMapReadyCallback {
             REQUEST_CODE_VIDEO_RECORDING -> if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
             } else {
-                Toast.makeText(this, "Acepta los permisos de alamacenamiento y camara", Toast.LENGTH_SHORT)
+                Toast.makeText(
+                    this,
+                    "Acepta los permisos de alamacenamiento y camara",
+                    Toast.LENGTH_SHORT
+                )
                     .show()
             }
             else -> {}

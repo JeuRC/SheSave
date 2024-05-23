@@ -28,13 +28,13 @@ class EmergencyText : AppCompatActivity() {
             }
         }
 
-        val pref = getSharedPreferences(getString(R.string.txtEmergency_text), Context.MODE_PRIVATE)
+        val pref = getSharedPreferences(getString(R.string.app_name), Context.MODE_PRIVATE)
         val savedText = pref.getString("Text", "")
         txtText.text = savedText
     }
 
     private fun saveText(edtText: String) {
-        val pref = getSharedPreferences(getString(R.string.txtEmergency_text), Context.MODE_PRIVATE)
+        val pref = getSharedPreferences(getString(R.string.app_name), Context.MODE_PRIVATE)
         val editor = pref.edit()
         editor.putString("Text", edtText)
         editor.apply()

@@ -39,7 +39,7 @@ class ChangeEmail : AppCompatActivity() {
     }
 
     private fun changeEmail(edtEmail: String) {
-        val pref = getSharedPreferences(getString(R.string.txtSignIn), Context.MODE_PRIVATE)
+        val pref = getSharedPreferences(getString(R.string.app_name), Context.MODE_PRIVATE)
         val editor = pref.edit()
         editor.putString("Email", edtEmail)
         editor.apply()

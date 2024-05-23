@@ -16,6 +16,7 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <uses-feature
         android:name="android.hardware.camera"
@@ -120,7 +121,16 @@
                 android:value="" />
         </activity>
 
-        <service android:name=".ServiceAlert" />
+        <service android:name=".alarm.ServiceAlert" />
+
+        <receiver
+            android:name=".alarm.PulseCountReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.SCREEN_OFF" />
+                <action android:name="android.intent.action.SCREEN_ON" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

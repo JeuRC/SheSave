@@ -20,7 +20,7 @@ class Setting : AppCompatActivity() {
         val imgEdit_characters = findViewById<ImageButton>(R.id.imgEdit_characters)
         val txtAudioRecording = findViewById<SwitchCompat>(R.id.txtAudioRecording)
         val txtVideoRecording = findViewById<SwitchCompat>(R.id.txtVideoRecording)
-        val pref = getSharedPreferences("IS_AUDIO_ENABLED", Context.MODE_PRIVATE)
+        val pref = getSharedPreferences(getString(R.string.app_name), Context.MODE_PRIVATE)
         val imgRecording = findViewById<ImageButton>(R.id.imgRecording)
         val imgMessage = findViewById<ImageButton>(R.id.imgMessage)
         val imgEmergency_contacts = findViewById<ImageButton>(R.id.imgEmergency_contacts)
@@ -95,7 +95,7 @@ class Setting : AppCompatActivity() {
     }
 
     private fun profile() {
-        val prefs = getSharedPreferences(getString(R.string.txtSignIn), Context.MODE_PRIVATE)
+        val prefs = getSharedPreferences(getString(R.string.app_name), Context.MODE_PRIVATE)
         val email = prefs.getString("Email", null)
         val password = prefs.getString("Password", null)
         val length = prefs.getInt("Length", 0)

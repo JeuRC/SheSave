@@ -45,7 +45,7 @@ class ResetPassword : AppCompatActivity() {
 
     private fun buttonSendEmail(email: String) {
         try {
-            val prefs = getSharedPreferences(getString(R.string.txtSignIn), Context.MODE_PRIVATE)
+            val prefs = getSharedPreferences(getString(R.string.app_name), Context.MODE_PRIVATE)
             val length = prefs.getInt("Length", 0)
 
             val stringSenderEmail = "jrojas16@uan.edu.co"

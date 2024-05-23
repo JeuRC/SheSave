@@ -6,6 +6,8 @@ import android.os.Bundle
 import android.text.InputType
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
 
@@ -62,16 +64,20 @@ class SignIn : AppCompatActivity() {
                 edtRPassword.text.toString().isNotEmpty()
             ) {
                 if (isValidEmail(edtEmail.text.toString())) {
-                    if (edtPassword.text.toString() == edtRPassword.text.toString()) {
-                        if (isPasswordSecure(edtPassword.text.toString())) {
-                            save(edtEmail.text.toString(), edtPassword.text.toString())
+                    if (isDifferentEmail(edtEmail.text.toString())){
+                        if (edtPassword.text.toString() == edtRPassword.text.toString()) {
+                            if (isPasswordSecure(edtPassword.text.toString())) {
+                                save(edtEmail.text.toString(), edtPassword.text.toString())
+                            } else {
+                                Toast.makeText(this, "La contraseña no es segura", Toast.LENGTH_LONG)
+                                    .show()
+                            }
                         } else {
-                            Toast.makeText(this, "La contraseña no es segura", Toast.LENGTH_LONG)
+                            Toast.makeText(this, "Las contraseñas no coinciden", Toast.LENGTH_LONG)
                                 .show()
                         }
-                    } else {
-                        Toast.makeText(this, "Las contraseñas no coinciden", Toast.LENGTH_LONG)
-                            .show()
+                    }else{
+                        Toast.makeText(this, "El usuario ya esta registrado", Toast.LENGTH_LONG).show()
                     }
                 } else {
                     Toast.makeText(this, "Ingrese un correo electrónico válido", Toast.LENGTH_LONG)
@@ -83,12 +89,22 @@ class SignIn : AppCompatActivity() {
         }
     }
 
+    private fun isDifferentEmail(edtEmail: String): Boolean {
+        val pref = getSharedPreferences(getString(R.string.app_name), Context.MODE_PRIVATE)
+        val email = pref.getString("Email", null)
+        return edtEmail != email.toString()
+    }
+
     private fun save(edtEmail: String, edtPassword: String) {
-        val pref = getSharedPreferences(getString(R.string.txtSignIn), Context.MODE_PRIVATE)
+        val pref = getSharedPreferences(getString(R.string.app_name), Context.MODE_PRIVATE)
+        val newUser = User(edtEmail, hashPassword(edtPassword))
+        val gson = Gson()
+        val json = pref.getString("USER_LIST", null)
+        val type = object : TypeToken<MutableList<User>>() {}.type
+        val users = if (json != null) gson.fromJson<MutableList<User>>(json, type) else mutableListOf()
+        users.add(newUser)
         val editor = pref.edit()
-        editor.putString("Email", edtEmail)
-        editor.putString("Password", hashPassword(edtPassword))
-        editor.putInt("Length", edtPassword.length)
+        editor.putString("USER_LIST", gson.toJson(users))
         editor.apply()
         val intent = Intent(this, Login::class.java)
         startActivity(intent)
@@ -96,7 +112,7 @@ class SignIn : AppCompatActivity() {
     }
 
     private fun isValidEmail(email: String): Boolean {
-        val emailRegex = "^[A-Za-z](.*)([@]{1})(.{1,})(\\.)(.{1,})"
+        val emailRegex = "^[A-Za-z](.*)([@])(.+)(\\.)(.+)"
         return email.matches(emailRegex.toRegex())
     }
 
