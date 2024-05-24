@@ -60,6 +60,7 @@ class RecordingViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         mediaPlayer?.release()
         mediaPlayer = null
         isPlaying = false
+        Toast.makeText(itemView.context, "Reproduccion finalizada", Toast.LENGTH_SHORT).show()
         //play.setImageResource(R.drawable.ic_play) // Cambia el icono del botón a reproducir
     }
 }

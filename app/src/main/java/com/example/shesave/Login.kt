@@ -57,8 +57,9 @@ class Login : AppCompatActivity() {
         }
 
         txtLogin3.setOnClickListener {
-            val intent = Intent(this, ChangePassword::class.java)
-            startActivity(intent)
+            /*val intent = Intent(this, ChangePassword::class.java)
+            startActivity(intent)*/
+            Toast.makeText(this, "Funcionalidad no implementada", Toast.LENGTH_SHORT).show()
         }
 
         val intent = Intent(this, ServiceAlert::class.java)

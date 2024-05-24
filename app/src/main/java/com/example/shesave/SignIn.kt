@@ -90,9 +90,25 @@ class SignIn : AppCompatActivity() {
     }
 
     private fun isDifferentEmail(edtEmail: String): Boolean {
-        val pref = getSharedPreferences(getString(R.string.app_name), Context.MODE_PRIVATE)
-        val email = pref.getString("Email", null)
-        return edtEmail != email.toString()
+        val prefs = getSharedPreferences(getString(R.string.app_name), Context.MODE_PRIVATE)
+        val json = prefs.getString("USER_LIST", null)
+        val gson = Gson()
+        val type = object : TypeToken<MutableList<User>>() {}.type
+        val users = if (json != null) gson.fromJson<MutableList<User>>(
+            json,
+            type
+        ) else mutableListOf()
+
+        var userFound = false
+
+        for (user in users) {
+            if (user.email != edtEmail) {
+                userFound = true
+                break
+            }
+        }
+
+        return userFound
     }
 
     private fun save(edtEmail: String, edtPassword: String) {

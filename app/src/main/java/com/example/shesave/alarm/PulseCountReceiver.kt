@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
-import com.example.shesave.Home
 import com.example.shesave.R
 import kotlinx.coroutines.*
 
@@ -14,13 +13,12 @@ class PulseCountReceiver : BroadcastReceiver() {
     private var numClicks = 0
     private var lastClickTime: Long = 0L
     private val message = AlertMessage()
-    private val recording = Home()
+    private val recording = AlertRecording()
 
     override fun onReceive(context: Context, intent: Intent?) {
         if (intent?.action == Intent.ACTION_SCREEN_ON || intent?.action == Intent.ACTION_SCREEN_OFF) {
             CoroutineScope(Dispatchers.Default).launch {
                 updatePulseCount(context)
-                //processClicks(context)
                 timePulse(context)
             }
         }
@@ -42,7 +40,7 @@ class PulseCountReceiver : BroadcastReceiver() {
 
             if (numClicks == pulseCount) {
                 message.sendSosMessage(context)
-                recording.startRecording()
+                recording.startRecording(context)
                 lastClickTime = System.currentTimeMillis()
                 numClicks = 0
                 lastClickTime = 0L
