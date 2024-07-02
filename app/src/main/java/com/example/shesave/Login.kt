@@ -18,9 +18,10 @@ class Login : AppCompatActivity() {
     private lateinit var receiver: PulseCountReceiver
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        supportActionBar?.hide()
+        supportActionBar?.hide() // Oculta la barra de accion
         setContentView(R.layout.activity_login)
 
+        // Inicializacion de vistas
         val edtEmail = findViewById<EditText>(R.id.edtEmail)
         val edtPassword = findViewById<EditText>(R.id.edtPassword)
         val imgShowPassword = findViewById<ImageButton>(R.id.imgShowPassword)
@@ -29,6 +30,7 @@ class Login : AppCompatActivity() {
         val txtLogin3 = findViewById<TextView>(R.id.txtLogin3)
         var passwordVisible = false
 
+        // Listener para mostrar/ocultar contraseña
         imgShowPassword.setOnClickListener {
             passwordVisible = !passwordVisible
             if (passwordVisible) {
@@ -43,6 +45,7 @@ class Login : AppCompatActivity() {
             edtPassword.setSelection(edtPassword.text.length)
         }
 
+        // Listener para el boton de inicio de sesion
         btnLogin.setOnClickListener {
             if (edtEmail.text.toString().isNotEmpty() && edtPassword.text.toString().isNotEmpty()) {
                 session()
@@ -51,22 +54,24 @@ class Login : AppCompatActivity() {
             }
         }
 
+        // Listener para redirigir a la pantalla de registro
         txtLogin2.setOnClickListener {
             val intent = Intent(this, SignIn::class.java)
             startActivity(intent)
         }
 
         txtLogin3.setOnClickListener {
-            val intent = Intent(this, ChangePassword::class.java)
-            startActivity(intent)
+            Toast.makeText(this, "Funcionalidad no implementada", Toast.LENGTH_SHORT).show()
         }
 
+        // Inicia el servicio en primer plano para las alertas
         val intent = Intent(this, ServiceAlert::class.java)
         startForegroundService(intent)
 
         receiver = PulseCountReceiver()
     }
 
+    // Metodo para gestionar la sesion del usuario
     private fun session() {
         val prefs = getSharedPreferences(getString(R.string.app_name), Context.MODE_PRIVATE)
         val json = prefs.getString("USER_LIST", null)
@@ -75,7 +80,7 @@ class Login : AppCompatActivity() {
         val users = if (json != null) gson.fromJson<MutableList<User>>(
             json,
             type
-        ) else mutableListOf<User>()
+        ) else mutableListOf()
 
         val edtEmail = findViewById<EditText>(R.id.edtEmail)
         val edtPassword = findViewById<EditText>(R.id.edtPassword)
@@ -84,6 +89,7 @@ class Login : AppCompatActivity() {
 
         var userFound = false
 
+        // Verifica las credenciales del usuario
         for (user in users) {
             if (user.email == enteredEmail && user.password == enteredPasswordHash) {
                 userFound = true
@@ -97,20 +103,18 @@ class Login : AppCompatActivity() {
             }
         }
 
+        // Redirige al usuario a la pantalla principal si las credenciales son validas
         if (userFound) {
-            showHome()
+            val intent = Intent(this, Home::class.java)
+            startActivity(intent)
+            Toast.makeText(this, "Has ingresado exitosamente", Toast.LENGTH_SHORT).show()
         } else {
             Toast.makeText(this, "Los datos ingresados no están registrados", Toast.LENGTH_SHORT)
                 .show()
         }
     }
 
-    private fun showHome() {
-        val intent = Intent(this, Home::class.java)
-        startActivity(intent)
-        Toast.makeText(this, "Has ingresado exitosamente", Toast.LENGTH_SHORT).show()
-    }
-
+    // Metodo para hashear la contrasena utilizando SHA-256
     private fun hashPassword(password: String): String {
         return try {
             val digest = MessageDigest.getInstance("SHA-256")
@@ -124,6 +128,7 @@ class Login : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        // Registra el receptor de pulsos al iniciar la pantalla
         val filter = IntentFilter(Intent.ACTION_SCREEN_ON)
         filter.addAction(Intent.ACTION_SCREEN_OFF)
         registerReceiver(receiver, filter)
@@ -131,6 +136,7 @@ class Login : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
+        // Desregistra el receptor de pulsos al pausar la pantalla
         unregisterReceiver(receiver)
     }
 }

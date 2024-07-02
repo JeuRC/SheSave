@@ -18,34 +18,42 @@ import com.google.gson.reflect.TypeToken
 
 class AddContact : AppCompatActivity() {
 
+    // Definicion de constantes dentro del companion object
     companion object {
-        private const val CONTACT_PICK_REQUEST = 1
-        private const val CONTACTS_PERMISSION_REQUEST_CODE = 101
+        private const val CONTACT_PICK_REQUEST = 1 // Codigo de solicitud para seleccionar contacto
+        private const val CONTACTS_PERMISSION_REQUEST_CODE = 101 // Codigo de solicitud para permiso de contactos
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        supportActionBar?.hide()
+        supportActionBar?.hide() // Oculta la barra de accion
         setContentView(R.layout.activity_add_contact)
 
+        // Inicializacion de vistas
         val imgBack = findViewById<ImageButton>(R.id.imgBack)
         val imgContacts = findViewById<ImageButton>(R.id.imgContacts)
         val edtName = findViewById<EditText>(R.id.edtName)
         val edtNumber = findViewById<EditText>(R.id.edtNumber)
         val btnSave = findViewById<Button>(R.id.btnSave)
 
+        // Configuracion del listener para el boton de retroceso
         imgBack.setOnClickListener {
             val intent = Intent(this, Contacts::class.java)
             startActivity(intent)
         }
 
+        // Configuracion del listener para el boton de contactos
         imgContacts.setOnClickListener {
             checkContactsPermission()
         }
 
+        // Configuracion del listener para el boton de guardar
         btnSave.setOnClickListener {
+            // Verifica que los campos de nombre y numero no esten vacios
             if (edtName.text.toString().isNotEmpty() && edtNumber.text.toString().isNotEmpty()) {
+                // Verifica que el numero tenga 10 digitos
                 if (edtNumber.text.toString().length == 10) {
+                    // Verifica que el numero comience con el digito 3
                     if (edtNumber.text.toString().startsWith("3")) {
                         save(edtName.text.toString(), edtNumber.text.toString())
                     } else {
@@ -65,13 +73,16 @@ class AddContact : AppCompatActivity() {
         }
     }
 
+    // Metodo para abrir la lista de contactos
     private fun openContacts() {
         val intent = Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI)
         startActivityForResult(intent, CONTACT_PICK_REQUEST)
     }
 
+    // Metodo para guardar el contacto en SharedPreferences
     private fun save(edtName: String, edtNumber: String) {
-        val sharedPreferences = getSharedPreferences(getString(R.string.app_name), Context.MODE_PRIVATE)
+        val sharedPreferences =
+            getSharedPreferences(getString(R.string.app_name), Context.MODE_PRIVATE)
         val gson = Gson()
 
         val currentUserEmail = sharedPreferences.getString("Email", null)
@@ -80,21 +91,22 @@ class AddContact : AppCompatActivity() {
             return
         }
 
+        // Obtiene la lista de usuarios de SharedPreferences
         val json = sharedPreferences.getString("USER_LIST", null)
         val type = object : TypeToken<MutableList<User>>() {}.type
-        val users = if (json != null) gson.fromJson<MutableList<User>>(json, type) else mutableListOf()
+        val users =
+            if (json != null) gson.fromJson<MutableList<User>>(json, type) else mutableListOf()
 
+        // Encuentra el usuario actual en la lista
         val currentUser = users.find { it.email == currentUserEmail }
         if (currentUser != null) {
-            if (currentUser.contacts == null) {
-                currentUser.contacts = mutableListOf()
-            }
+            // Añade el nuevo contacto al usuario actual
             val newContact = Contact(edtName, edtNumber)
             currentUser.contacts.add(newContact)
             val editor = sharedPreferences.edit()
             val updatedJson = gson.toJson(users)
             editor.putString("USER_LIST", updatedJson)
-            editor.apply()
+            editor.apply() // Guarda los cambios en SharedPreferences
             val intent = Intent(this, Contacts::class.java)
             startActivity(intent)
             Toast.makeText(this, "Contacto guardado", Toast.LENGTH_SHORT).show()
@@ -103,12 +115,14 @@ class AddContact : AppCompatActivity() {
         }
     }
 
+    // Metodo para verificar el permiso de contactos
     private fun checkContactsPermission() {
         if (ContextCompat.checkSelfPermission(
                 this,
                 Manifest.permission.READ_CONTACTS
             ) != PackageManager.PERMISSION_GRANTED
         ) {
+            // Solicita el permiso si no esta concedido
             ActivityCompat.requestPermissions(
                 this,
                 arrayOf(Manifest.permission.READ_CONTACTS),
@@ -119,6 +133,7 @@ class AddContact : AppCompatActivity() {
         }
     }
 
+    // Metodo para obtener el numero de telefono de un contacto
     private fun getContactPhoneNumber(cursor: android.database.Cursor): String {
         val contactId =
             cursor.getString(cursor.getColumnIndexOrThrow(ContactsContract.Contacts._ID))
@@ -138,6 +153,7 @@ class AddContact : AppCompatActivity() {
         return phoneNumber
     }
 
+    // Metodo que maneja el resultado de la solicitud de permisos
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -157,6 +173,7 @@ class AddContact : AppCompatActivity() {
         }
     }
 
+    // Metodo que maneja el resultado de la seleccion de un contacto
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == CONTACT_PICK_REQUEST && resultCode == RESULT_OK) {

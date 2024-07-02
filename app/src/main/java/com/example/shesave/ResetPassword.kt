@@ -17,8 +17,7 @@ class ResetPassword : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         supportActionBar?.hide()
         setContentView(R.layout.activity_reset_password)
-
-        val imgBack = findViewById<ImageButton>(R.id.imgBack)
+/*        val imgBack = findViewById<ImageButton>(R.id.imgBack)
         val edtEmail = findViewById<EditText>(R.id.edtEmail)
         val btnSend = findViewById<Button>(R.id.btnSend)
 
@@ -40,7 +39,7 @@ class ResetPassword : AppCompatActivity() {
                     Toast.LENGTH_SHORT
                 ).show()
             }
-        }
+        }*/
     }
 
     private fun buttonSendEmail(email: String) {
@@ -48,8 +47,8 @@ class ResetPassword : AppCompatActivity() {
             val prefs = getSharedPreferences(getString(R.string.app_name), Context.MODE_PRIVATE)
             val length = prefs.getInt("Length", 0)
 
-            val stringSenderEmail = "jrojas16@uan.edu.co"
-            val stringPasswordSenderEmail = "Prueba1."
+            val stringSenderEmail = "correo@uan.edu.co" //Se ingresa un correo valido
+            val stringPasswordSenderEmail = "contraseña" //Se ingresa la contraseña del correo
             val stringHost = "smtp.gmail.com"
 
             val properties = System.getProperties().apply {
@@ -91,7 +90,7 @@ class ResetPassword : AppCompatActivity() {
     }
 
     private fun isValidEmail(email: String): Boolean {
-        val emailRegex = "^[A-Za-z](.*)([@]{1})(.{1,})(\\.)(.{1,})"
+        val emailRegex = "^[A-Za-z](.*)([@])(.+)(\\.)(.+)"
         return email.matches(emailRegex.toRegex())
     }
 }
