@@ -5,12 +5,13 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
+import android.media.MediaPlayer
 import android.media.MediaRecorder
 import android.os.Bundle
 import android.os.CountDownTimer
-import android.os.Environment
 import android.os.Handler
 import android.provider.MediaStore
+import android.util.Log
 import android.view.MotionEvent
 import android.widget.ImageButton
 import android.widget.Toast
@@ -27,18 +28,23 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import java.io.File
+import java.io.IOException
 
 class Home : AppCompatActivity(), OnMapReadyCallback {
 
+    // Variables para manejar el mapa y la ubicacion
     private lateinit var map: GoogleMap
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+
+    // Variables para manejar la grabacion de audio
     private var recordingName: String? = null
     private var recordingTrack: String? = null
-    private var mediaRecorder: MediaRecorder? = null
     private var recordingTimer: CountDownTimer? = null
     private var isSosButtonPressed = false
     private var alert = AlertMessage()
+    private var fileName: String = ""
+    private var recorder: MediaRecorder? = null
+    private var player: MediaPlayer? = null
     private val sosHandler = Handler()
     private val sosRunnable = Runnable {
         if (isSosButtonPressed) {
@@ -47,34 +53,39 @@ class Home : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+    // Constantes para manejar permisos
     companion object {
         const val REQUEST_CODE_LOCATION = 0
         const val REQUEST_CODE_SMS_PERMISSION = 1
         const val REQUEST_CODE_VIDEO_RECORDING = 0
         const val REQUEST_CODE_AUDIO_RECORDING = 0
+        const val LOG_TAG = "AudioRecordTest"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        supportActionBar?.hide()
+        supportActionBar?.hide() // Oculta la barra de accion
         setContentView(R.layout.activity_home)
         createFragment()
 
+        // Inicializacion de vistas
         val btnSetting = findViewById<ImageButton>(R.id.btnSetting)
         val btnSos = findViewById<ImageButton>(R.id.btnSos)
         val imgRecording = findViewById<ImageButton>(R.id.imgRecording)
         val imgContacts = findViewById<ImageButton>(R.id.imgContacts)
 
+        // Configura el boton de retroceso
         btnSetting.setOnClickListener {
             val intent = Intent(this, Setting::class.java)
             startActivity(intent)
         }
 
+        // Configura el tiempo del boton sos
         btnSos.setOnTouchListener { _, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
                     isSosButtonPressed = true
-                    sosHandler.postDelayed(sosRunnable, 2000) // 2000 ms = 2 segundos
+                    sosHandler.postDelayed(sosRunnable, 2000) //2 segundos
                 }
                 MotionEvent.ACTION_UP -> {
                     isSosButtonPressed = false
@@ -84,21 +95,25 @@ class Home : AppCompatActivity(), OnMapReadyCallback {
             true
         }
 
+        // Configura el boton de grabaciones
         imgRecording.setOnClickListener {
             val intent = Intent(this, Recordings::class.java)
             startActivity(intent)
         }
 
+        // Configura el boton de contactos
         imgContacts.setOnClickListener {
             val intent = Intent(this, Contacts::class.java)
             startActivity(intent)
         }
 
+        // Inicializa el cliente de ubicacion
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         getCurrentLocation()
     }
 
+    // Inicia la grabacion de audio o video basado en las preferencias del usuario
     fun startRecording() {
         val prefs = getSharedPreferences(getString(R.string.app_name), Context.MODE_PRIVATE)
         val AudioChecked = prefs.getBoolean("AudioChecked", false)
@@ -111,27 +126,34 @@ class Home : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+    // Inicia la grabacion de audio
     private fun startAudioRecording() {
         if (isAudioRecordingPermissionGranted()) {
-            val fileName = "REC_${System.currentTimeMillis()}.3gp"
-            val outputFile =
-                File(getExternalFilesDir(Environment.DIRECTORY_MUSIC), "MyRecording/$fileName")
             val currentTimeMillis = System.currentTimeMillis()
 
-            mediaRecorder = MediaRecorder()
-            mediaRecorder?.setAudioSource(MediaRecorder.AudioSource.MIC)
-            mediaRecorder?.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
-            mediaRecorder?.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
-            mediaRecorder?.setOutputFile(outputFile.absolutePath)
+            fileName = generateFileName()
+
             try {
-                mediaRecorder?.prepare()
-                mediaRecorder?.start()
+                recorder = MediaRecorder().apply {
+                    setAudioSource(MediaRecorder.AudioSource.MIC)
+                    setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
+                    setOutputFile(fileName)
+                    setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
+                    try {
+                        prepare()
+                    } catch (e: IOException) {
+                        Log.e(LOG_TAG, "prepare() failed")
+                    }
+                    start()
+                }
+                Toast.makeText(this, "Grabacion iniciada", Toast.LENGTH_SHORT).show()
             } catch (e: Exception) {
                 e.printStackTrace()
                 Toast.makeText(this, "Error al iniciar la grabación", Toast.LENGTH_SHORT).show()
             }
+
             recordingName = currentTimeMillis.toString()
-            recordingTrack = outputFile.absolutePath
+            recordingTrack = fileName
             val recording = Recording(
                 recordingName.toString(),
                 recordingTrack.toString(),
@@ -145,6 +167,13 @@ class Home : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+    // Genera un nombre de archivo basado en el timestamp actual
+    private fun generateFileName(): String {
+        val timestamp = System.currentTimeMillis()
+        return "${externalCacheDir?.absolutePath}/audio_$timestamp.3gp"
+    }
+
+    // Inicia la grabacion de video
     private fun startVideoRecording() {
         if (isVideoRecordingPermissionGranted()) {
             val REQUEST_VIDEO_CAPTURE = 1
@@ -158,6 +187,7 @@ class Home : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+    // Verifica si los permisos de grabacion de audio han sido concedidos
     private fun isAudioRecordingPermissionGranted() = ContextCompat.checkSelfPermission(
         this,
         Manifest.permission.WRITE_EXTERNAL_STORAGE
@@ -166,6 +196,7 @@ class Home : AppCompatActivity(), OnMapReadyCallback {
         Manifest.permission.RECORD_AUDIO
     ) == PackageManager.PERMISSION_GRANTED
 
+    // Verifica si los permisos de grabacion de video han sido concedidos
     private fun isVideoRecordingPermissionGranted() = ContextCompat.checkSelfPermission(
         this,
         Manifest.permission.WRITE_EXTERNAL_STORAGE
@@ -174,6 +205,7 @@ class Home : AppCompatActivity(), OnMapReadyCallback {
         Manifest.permission.CAMERA
     ) == PackageManager.PERMISSION_GRANTED
 
+    // Solicita permisos para grabacion de audio
     private fun requestAudioRecordingPermission() {
         if (ActivityCompat.shouldShowRequestPermissionRationale(
                 this,
@@ -200,6 +232,7 @@ class Home : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+    // Solicita permisos para grabacion de video
     private fun requestVideoRecordingPermission() {
         if (ActivityCompat.shouldShowRequestPermissionRationale(
                 this,
@@ -223,6 +256,7 @@ class Home : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+    // Inicia un temporizador para detener la grabacion despues de un minuto
     private fun startTimer() {
         recordingTimer = object : CountDownTimer(60000, 1000) {
             override fun onTick(millisUntilFinished: Long) {
@@ -235,6 +269,7 @@ class Home : AppCompatActivity(), OnMapReadyCallback {
         }.start()
     }
 
+    // Guarda la grabacion en las preferencias
     private fun recordingFile(recording: Recording) {
         val prefs = getSharedPreferences(getString(R.string.app_name), Context.MODE_PRIVATE)
         val gson = Gson()
@@ -248,13 +283,14 @@ class Home : AppCompatActivity(), OnMapReadyCallback {
         edit.apply()
     }
 
+    // Detiene la grabacion de audio
     private fun stopRecording() {
         try {
-            mediaRecorder?.stop()
-            mediaRecorder?.release()
-            mediaRecorder = null
-            recordingTimer?.cancel()
-            recordingTimer = null
+            recorder?.apply {
+                stop()
+                release()
+            }
+            recorder = null
             Toast.makeText(this, "Grabación finalizada", Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {
             e.printStackTrace()
@@ -262,16 +298,19 @@ class Home : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+    // Crea el fragmento del mapa
     private fun createFragment() {
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
     }
 
+    // Verifica si los permisos de ubicacion estan concedidos
     private fun isLocationPermissionGranted() = ContextCompat.checkSelfPermission(
         this,
         Manifest.permission.ACCESS_FINE_LOCATION
     ) == PackageManager.PERMISSION_GRANTED
 
+    // Habilita la ubicacion si los permisos estan concedidos
     private fun enableLocation() {
         if (!::map.isInitialized) return
         if (isLocationPermissionGranted()) {
@@ -281,6 +320,7 @@ class Home : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+    // Solicita permisos de ubicacion
     private fun requestLocationPermission() {
         if (ActivityCompat.shouldShowRequestPermissionRationale(
                 this,
@@ -297,6 +337,7 @@ class Home : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+    // Obtiene la ubicacion actual del dispositivo
     private fun getCurrentLocation() {
         if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             Toast.makeText(this, "No se han otorgado permisos de ubicación", Toast.LENGTH_SHORT)
@@ -314,7 +355,8 @@ class Home : AppCompatActivity(), OnMapReadyCallback {
                             4000,
                             null
                         )
-                        val pref = getSharedPreferences(getString(R.string.app_name), Context.MODE_PRIVATE)
+                        val pref =
+                            getSharedPreferences(getString(R.string.app_name), Context.MODE_PRIVATE)
                         val editor = pref.edit()
                         editor.putString("Latitude", location.latitude.toString())
                         editor.putString("Longitude", location.longitude.toString())
@@ -330,17 +372,29 @@ class Home : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+    // Actualiza el numero de telefono SOS cuando la actividad se reanuda
     override fun onResume() {
         super.onResume()
         alert.updateSosPhoneNumber(this)
     }
 
+    // Libera los recursos al detener la actividad
+    override fun onStop() {
+        super.onStop()
+        recorder?.release()
+        recorder = null
+        player?.release()
+        player = null
+    }
+
+    // Configura el mapa cuando este listo para usar
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
         enableLocation()
         getCurrentLocation()
     }
 
+    // Maneja los resultados de solicitudes de permisos
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -395,6 +449,7 @@ class Home : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+    // Revisa y solicita permisos de ubicacion al reanudar los fragmentos
     override fun onResumeFragments() {
         super.onResumeFragments()
         if (!::map.isInitialized) return

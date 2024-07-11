@@ -12,13 +12,13 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class RecordingViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-    private val name = view.findViewById<TextView>(R.id.txtRecording)
-    private val play = view.findViewById<ImageButton>(R.id.imgPlay)
-    private val delete = view.findViewById<ImageButton>(R.id.imgDelete)
-    private var mediaPlayer: MediaPlayer? = null
-    private var isPlaying = false
-    private var recordingModel: Recording? = null
-    private val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+    private val name = view.findViewById<TextView>(R.id.txtRecording) // TextView para mostrar el nombre de la grabacion
+    private val play = view.findViewById<ImageButton>(R.id.imgPlay) // ImageButton para reproducir o pausar la grabacion
+    private val delete = view.findViewById<ImageButton>(R.id.imgDelete) // ImageButton para eliminar la grabacion
+    private var mediaPlayer: MediaPlayer? = null // Objeto MediaPlayer para reproducir la grabacion
+    private var isPlaying = false // Estado de reproduccion actual
+    private var recordingModel: Recording? = null // Modelo de grabacion asociado a este ViewHolder
+    private val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()) // Formato de fecha para mostrar el timestamp
 
     init {
         play.setOnClickListener {
@@ -32,12 +32,14 @@ class RecordingViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         }
     }
 
+    // Metodo para renderizar los datos de la grabacion en el ViewHolder
     fun render(recordingModel: Recording, onClickDelete: (Int) -> Unit) {
         this.recordingModel = recordingModel
-        name.text = dateFormat.format(Date(recordingModel.timestamp))
-        delete.setOnClickListener { onClickDelete(adapterPosition) }
+        name.text = dateFormat.format(Date(recordingModel.timestamp)) // Establece la fecha formateada en el TextView
+        delete.setOnClickListener { onClickDelete(adapterPosition) } // Define el listener para el boton de eliminar la grabacion
     }
 
+    // Metodo para iniciar la reproduccion de la grabacion
     private fun startPlaying() {
         recordingModel?.let { model ->
             try {
@@ -48,7 +50,7 @@ class RecordingViewHolder(view: View) : RecyclerView.ViewHolder(view) {
                     setOnCompletionListener { stopPlaying() }
                 }
                 isPlaying = true
-                //play.setImageResource(R.drawable.ic_pause) // Cambia el icono del botón a pausa
+                play.setImageResource(R.drawable.icon_pause)
             } catch (e: Exception) {
                 e.printStackTrace()
                 Toast.makeText(itemView.context, "Error al reproducir", Toast.LENGTH_SHORT).show()
@@ -56,10 +58,12 @@ class RecordingViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         }
     }
 
+    // Metodo para detener la reproduccion de la grabacion
     private fun stopPlaying() {
         mediaPlayer?.release()
         mediaPlayer = null
         isPlaying = false
-        //play.setImageResource(R.drawable.ic_play) // Cambia el icono del botón a reproducir
+        Toast.makeText(itemView.context, "Reproduccion finalizada", Toast.LENGTH_SHORT).show()
+        play.setImageResource(R.drawable.icon_play)
     }
 }

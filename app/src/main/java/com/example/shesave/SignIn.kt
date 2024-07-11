@@ -14,9 +14,10 @@ import java.security.NoSuchAlgorithmException
 class SignIn : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        supportActionBar?.hide()
+        supportActionBar?.hide() // Oculta la barra de accion
         setContentView(R.layout.activity_sign_in)
 
+        // Inicializacion de vistas
         val imgBack = findViewById<ImageButton>(R.id.imgBack)
         val edtEmail = findViewById<EditText>(R.id.edtEmail)
         val edtPassword = findViewById<EditText>(R.id.edtPassword)
@@ -26,11 +27,13 @@ class SignIn : AppCompatActivity() {
         val btnSignIn = findViewById<Button>(R.id.btnSignIn)
         var passwordVisible = false
 
+        // Listener para el boton de retroceso
         imgBack.setOnClickListener {
             val intent = Intent(this, Login::class.java)
             startActivity(intent)
         }
 
+        // Listener para mostrar/ocultar contraseña principal
         imgShowPassword.setOnClickListener {
             passwordVisible = !passwordVisible
             if (passwordVisible) {
@@ -45,6 +48,7 @@ class SignIn : AppCompatActivity() {
             edtPassword.setSelection(edtPassword.text.length)
         }
 
+        // Listener para mostrar/ocultar contraseña de confirmacion
         imgShowRPassword.setOnClickListener {
             passwordVisible = !passwordVisible
             if (passwordVisible) {
@@ -59,25 +63,31 @@ class SignIn : AppCompatActivity() {
             edtRPassword.setSelection(edtRPassword.text.length)
         }
 
+        // Listener para el boton de registro
         btnSignIn.setOnClickListener {
             if (edtEmail.text.toString().isNotEmpty() && edtPassword.text.toString().isNotEmpty() &&
                 edtRPassword.text.toString().isNotEmpty()
             ) {
                 if (isValidEmail(edtEmail.text.toString())) {
-                    if (isDifferentEmail(edtEmail.text.toString())){
+                    if (isDifferentEmail(edtEmail.text.toString())) {
                         if (edtPassword.text.toString() == edtRPassword.text.toString()) {
                             if (isPasswordSecure(edtPassword.text.toString())) {
                                 save(edtEmail.text.toString(), edtPassword.text.toString())
                             } else {
-                                Toast.makeText(this, "La contraseña no es segura", Toast.LENGTH_LONG)
+                                Toast.makeText(
+                                    this,
+                                    "La contraseña no es segura",
+                                    Toast.LENGTH_LONG
+                                )
                                     .show()
                             }
                         } else {
                             Toast.makeText(this, "Las contraseñas no coinciden", Toast.LENGTH_LONG)
                                 .show()
                         }
-                    }else{
-                        Toast.makeText(this, "El usuario ya esta registrado", Toast.LENGTH_LONG).show()
+                    } else {
+                        Toast.makeText(this, "El usuario ya esta registrado", Toast.LENGTH_LONG)
+                            .show()
                     }
                 } else {
                     Toast.makeText(this, "Ingrese un correo electrónico válido", Toast.LENGTH_LONG)
@@ -89,19 +99,34 @@ class SignIn : AppCompatActivity() {
         }
     }
 
+    // Verifica si el correo electronico ya esta registrado
     private fun isDifferentEmail(edtEmail: String): Boolean {
-        val pref = getSharedPreferences(getString(R.string.app_name), Context.MODE_PRIVATE)
-        val email = pref.getString("Email", null)
-        return edtEmail != email.toString()
+        val prefs = getSharedPreferences(getString(R.string.app_name), Context.MODE_PRIVATE)
+        val json = prefs.getString("USER_LIST", null)
+        val gson = Gson()
+        val type = object : TypeToken<MutableList<User>>() {}.type
+        val users = if (json != null) gson.fromJson<MutableList<User>>(
+            json,
+            type
+        ) else mutableListOf()
+
+        for (user in users) {
+            if (user.email == edtEmail) {
+                return false
+            }
+        }
+        return true
     }
 
+    // Guarda un nuevo usuario registrado
     private fun save(edtEmail: String, edtPassword: String) {
         val pref = getSharedPreferences(getString(R.string.app_name), Context.MODE_PRIVATE)
         val newUser = User(edtEmail, hashPassword(edtPassword))
         val gson = Gson()
         val json = pref.getString("USER_LIST", null)
         val type = object : TypeToken<MutableList<User>>() {}.type
-        val users = if (json != null) gson.fromJson<MutableList<User>>(json, type) else mutableListOf()
+        val users =
+            if (json != null) gson.fromJson<MutableList<User>>(json, type) else mutableListOf()
         users.add(newUser)
         val editor = pref.edit()
         editor.putString("USER_LIST", gson.toJson(users))
@@ -111,11 +136,13 @@ class SignIn : AppCompatActivity() {
         Toast.makeText(this, "Te has registrado exitosamente", Toast.LENGTH_SHORT).show()
     }
 
+    // Verifica si el correo electronico tiene un formato valido
     private fun isValidEmail(email: String): Boolean {
         val emailRegex = "^[A-Za-z](.*)([@])(.+)(\\.)(.+)"
         return email.matches(emailRegex.toRegex())
     }
 
+    // Genera un hash SHA-256 de la contraseña
     private fun hashPassword(password: String): String {
         return try {
             val digest = MessageDigest.getInstance("SHA-256")
@@ -127,6 +154,7 @@ class SignIn : AppCompatActivity() {
         }
     }
 
+    // Verifica si la contraseña es segura
     private fun isPasswordSecure(password: String): Boolean {
         val minLength = 8
 

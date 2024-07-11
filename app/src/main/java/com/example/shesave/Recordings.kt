@@ -1,7 +1,6 @@
 package com.example.shesave
 
 import android.content.Context
-import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.ImageButton
@@ -12,30 +11,36 @@ import com.example.shesave.adapter.RecordingAdapter
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
+// Lista mutable de grabaciones
 private val recordingList = mutableListOf<Recording>()
 private lateinit var adapter: RecordingAdapter
 
 class Recordings : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        supportActionBar?.hide()
+        supportActionBar?.hide() // Oculta la barra de accion
         setContentView(R.layout.activity_recordings)
 
+        // Inicializacion de vistas
         val imgBack = findViewById<ImageButton>(R.id.imgBack)
 
+        // Configura el boton de retroceso
         imgBack.setOnClickListener {
             onBackPressed()
         }
 
+        // Carga y configura el RecyclerView
         loadRecording()
         initRecyclerView()
     }
 
     override fun onResume() {
         super.onResume()
+        // Carga las grabaciones al resumir la actividad
         loadRecording()
     }
 
+    // Inicializa el RecyclerView con el adaptador y decoracion
     private fun initRecyclerView() {
         adapter = RecordingAdapter(
             list = recordingList,
@@ -48,12 +53,14 @@ class Recordings : AppCompatActivity() {
         recyclerView.addItemDecoration(decoration)
     }
 
+    // Accion al eliminar un elemento de la lista
     private fun onDeletedItem(position: Int) {
         recordingList.removeAt(position)
         adapter.notifyItemRemoved(position)
         saveRecording()
     }
 
+    // Guarda la lista de grabaciones en SharedPreferences
     private fun saveRecording() {
         val sharedPreferences = getSharedPreferences(getString(R.string.app_name), Context.MODE_PRIVATE)
         val editor = sharedPreferences.edit()
@@ -63,6 +70,7 @@ class Recordings : AppCompatActivity() {
         editor.apply()
     }
 
+    // Carga la lista de grabaciones desde SharedPreferences
     private fun loadRecording() {
         val sharedPreferences = getSharedPreferences(getString(R.string.app_name), Context.MODE_PRIVATE)
         val gson = Gson()

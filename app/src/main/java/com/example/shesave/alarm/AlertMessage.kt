@@ -24,12 +24,15 @@ class AlertMessage {
         var SOS_PHONE_NUMBER = ""
     }
 
+    // Funcion para enviar un mensaje de SOS
     fun sendSosMessage(context: Context) {
+        // Verifica si tiene permisos para enviar SMS
         if (ContextCompat.checkSelfPermission(
                 context,
                 Manifest.permission.SEND_SMS
             ) != PackageManager.PERMISSION_GRANTED
         ) {
+            // Solicita permisos si no estan concedidos
             ActivityCompat.requestPermissions(
                 context as Activity,
                 arrayOf(Manifest.permission.SEND_SMS),
@@ -37,6 +40,7 @@ class AlertMessage {
             )
         } else {
             updateSosPhoneNumber(context)
+            // Notifica si no hay contactos de emergencia configurados
             if (SOS_PHONE_NUMBER.isBlank()) {
                 Toast.makeText(
                     context,
@@ -49,6 +53,7 @@ class AlertMessage {
         }
     }
 
+    // Funcion para enviar SMS
     fun sendSms(context: Context) {
         try {
             val smsManager = SmsManager.getDefault()
@@ -57,11 +62,14 @@ class AlertMessage {
                     context.getString(R.string.app_name),
                     Context.MODE_PRIVATE
                 )
+            // Construye el mensaje de SOS con la ubicacion actual
             SOS_MESSAGE = prefs.getString(
                 "Text",
                 "!!!Necesito Ayuda!!!"
             ) + "\n" + "Mi ubicacion actual es esta: " + createMapLink(context)
+            // Obtiene y divide los numeros de telefono de emergencia configurados
             val phoneNumbers = SOS_PHONE_NUMBER.split(",")
+            // Envia el mensaje a cada numero de telefono
             phoneNumbers.forEach { number ->
                 smsManager.sendTextMessage(number.trim(), null, SOS_MESSAGE, null, null)
             }
@@ -77,6 +85,7 @@ class AlertMessage {
         }
     }
 
+    // Funcion para crear el enlace del mapa con la ubicacion actual
     private fun createMapLink(context: Context): String {
         val pref =
             context.getSharedPreferences(context.getString(R.string.app_name), Context.MODE_PRIVATE)
@@ -85,16 +94,19 @@ class AlertMessage {
         return "https://www.google.com/maps/search/?api=1&query=$latitude,$longitude"
     }
 
+    // Funcion para actualizar el numero de telefono de SOS
     fun updateSosPhoneNumber(context: Context) {
         SOS_PHONE_NUMBER = getAllContactNumbers(context)
     }
 
+    // Funcion para obtener todos los numeros de contacto configurados
     private fun getAllContactNumbers(context: Context): String {
         val sharedPreferences =
             context.getSharedPreferences(context.getString(R.string.app_name), Context.MODE_PRIVATE)
         val gson = Gson()
 
         val currentUserEmail = sharedPreferences.getString("Email", null)
+        // Notifica si no se encuentra el usuario actual
         if (currentUserEmail == null) {
             Toast.makeText(context, "No se encontró el usuario actual", Toast.LENGTH_SHORT).show()
             return ""
@@ -102,15 +114,17 @@ class AlertMessage {
 
         val json = sharedPreferences.getString("USER_LIST", null)
         val type = object : TypeToken<MutableList<User>>() {}.type
-        val users = if (json != null) gson.fromJson<MutableList<User>>(json, type) else mutableListOf()
+        val users =
+            if (json != null) gson.fromJson<MutableList<User>>(json, type) else mutableListOf()
 
         val currentUser = users.find { it.email == currentUserEmail }
-        if (currentUser != null) {
-            val phoneNumbers = currentUser.contacts?.map { it.number } ?: listOf()
-            return phoneNumbers.joinToString(separator = ",")
+        // Obtiene los numeros de telefono de los contactos del usuario actual
+        return if (currentUser != null) {
+            val phoneNumbers = currentUser.contacts.map { it.number } ?: listOf()
+            phoneNumbers.joinToString(separator = ",")
         } else {
             Toast.makeText(context, "No se encontró el usuario actual", Toast.LENGTH_SHORT).show()
-            return ""
+            ""
         }
     }
 }
